@@ -1,0 +1,238 @@
+/***************************************************************************
+ *   Copyright (C) 2010 by Marache-Francisco   *
+ *   marache@IV   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+#include <iostream>
+#include <stdlib.h>
+#include "SDL.h"
+#include <SDL_endian.h> /* Used for the endian-dependent 24 bpp mode */
+
+
+#include "vertex.h"
+
+using namespace std;
+
+
+
+void DrawPixel(SDL_Surface *screen, int x, int y,
+               Uint8 R, Uint8 G,
+               Uint8 B)
+{
+    Uint32 color = SDL_MapRGB(screen->format, R, G, B);
+
+    if ( SDL_MUSTLOCK(screen) ) {
+        if ( SDL_LockSurface(screen) < 0 ) {
+            return;
+        }
+    }
+    switch (screen->format->BytesPerPixel) {
+        case 1: { /*On gère le mode 8bpp */
+            Uint8 *bufp;
+
+            bufp = (Uint8 *)screen->pixels + y*screen->pitch + x;
+            *bufp = color;
+        }
+        break;
+
+        case 2: { /* Certainement 15 ou 16 bpp */
+            Uint16 *bufp;
+
+            bufp = (Uint16 *)screen->pixels + y*screen->pitch/2 + x;
+            *bufp = color;
+        }
+        break;
+
+        case 3: { /* 24 bpp lent et généralement pas utilisé */
+            Uint8 *bufp;
+
+            bufp = (Uint8 *)screen->pixels + y*screen->pitch + x * 3;
+            if(SDL_BYTEORDER == SDL_LIL_ENDIAN) {
+                bufp[0] = color;
+                bufp[1] = color >> 8;
+                bufp[2] = color >> 16;
+            } else {
+                bufp[2] = color;
+                bufp[1] = color >> 8;
+                bufp[0] = color >> 16;
+            }
+        }
+        break;
+
+        case 4: { /* Probablement 32 bpp alors */
+            Uint32 *bufp;
+
+            bufp = (Uint32 *)screen->pixels + y*screen->pitch/4 + x;
+            *bufp = color;
+        }
+        break;
+    }
+    if ( SDL_MUSTLOCK(screen) ) {
+        SDL_UnlockSurface(screen);
+    }
+    SDL_UpdateRect(screen, x, y, 1, 1);
+}
+
+typedef struct _Point {
+    int x, y, z;
+} Point;
+
+
+void projeter(Vertex i, Point & pt) {
+    pt.x = (i.x + 1.0) * 320;
+    pt.y = (i.y + 1.0) * 240; 
+}
+
+void afficherVertex(SDL_Surface *screen, Vertex lVertex[], int tVertex) {
+    Point proj;
+    
+    for(int i=0; i< tVertex; i++) {
+        projeter(lVertex[i], proj);
+        DrawPixel(screen, proj.x-1, proj.y, 255, 255, 255);
+        DrawPixel(screen, proj.x+1, proj.y, 255, 255, 255);
+        DrawPixel(screen, proj.x, proj.y-1, 255, 255, 255);
+        DrawPixel(screen, proj.x, proj.y+1, 255, 255, 255);
+        DrawPixel(screen, proj.x, proj.y, 255, 255, 255);        
+        
+    }
+}
+
+
+void trierInPlace(Point pt[]) {
+    Point tmp;
+    if(pt[1].y < pt[0].y) {
+        tmp = pt[0];
+        pt[0] = pt[1];
+        pt[1] = tmp;
+    }
+
+    if(pt[2].y < pt[1].y) {
+        tmp = pt[1];
+        pt[1] = pt[2];
+        pt[2] = tmp;
+    }
+
+    if(pt[1].y < pt[0].y) {
+        tmp = pt[0];
+        pt[0] = pt[1];
+        pt[1] = tmp;
+    }
+}
+
+
+
+void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y) {
+    for(int x = xMin; x < xMax; x++)
+        DrawPixel(screen, x, y, 255, 0, 0);
+}
+
+#define MIN(a,b) (a<b?a:b)
+#define MAX(a,b) (a>b?a:b)
+
+void afficherTriangle(SDL_Surface *screen, Vertex lVertex[]) {
+    Point tP[3];
+    for (int v=0; v<3;v++)
+        projeter(lVertex[v], tP[v]);
+
+    trierInPlace(tP);
+        
+    int yP = 0;
+    for(int y=tP[0].y; y<=tP[1].y; y++) {
+        int xMin = (int)(tP[1].x - tP[0].x)/((float)tP[1].y - tP[0].y) * yP + tP[0].x;
+        int xMax = (int)(tP[2].x - tP[0].x)/((float)tP[2].y - tP[0].y) * yP + tP[0].x;
+        dessinerLigne(screen, MIN(xMin, xMax), MAX(xMin, xMax), y);
+        
+        DrawPixel(screen, MIN(xMin, xMax), y, 0,0,255);
+        DrawPixel(screen, MAX(xMin, xMax), y, 0,255,255);
+        
+        yP ++;
+    }
+
+    yP = 0; //tP[2].y - tP[1].y;
+    for(int y=tP[2].y; y>tP[1].y; y--) {
+        int xMin = (int)-(tP[0].x - tP[2].x)/((float)tP[0].y - tP[2].y) * yP;
+        int xMax = (int)-(tP[1].x - tP[2].x)/((float)tP[1].y - tP[2].y) * yP;
+        //cout << xMin <<" " <<xMax<<endl;
+        
+        dessinerLigne(screen, MIN(xMin, xMax) + tP[2].x , MAX(xMin, xMax) + tP[2].x, y);
+        DrawPixel(screen, MIN(xMin, xMax) + tP[2].x, y, 0,0,255);
+        DrawPixel(screen, MAX(xMin, xMax) + tP[2].x, y, 0,255,255);
+
+        yP ++;
+    }
+    
+    afficherVertex(screen, lVertex, 3);
+}
+
+
+int main(int argc, char *argv[])
+{
+ cout <<"Initializing SDL." << endl;
+  /* Initializes Audio and the CDROM, add SDL_INIT_VIDEO for Video */
+  if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)< 0) {
+    cout <<"Could not initialize SDL:" << SDL_GetError() << endl;
+    SDL_Quit();
+  } else {
+      cout << "Audio & Video initialized correctly" << endl;
+  }
+  
+  SDL_Surface *screen;
+
+  screen = SDL_SetVideoMode(640, 480, 16, SDL_SWSURFACE);
+  if ( screen == NULL ) {
+      cerr << "Impossible de passer en 640x480 en 16 bpp: " << SDL_GetError() <<endl;
+      SDL_Quit();
+  }
+
+  
+  Vertex listVertex [] = { Vertex(0.4, 0.3, 0.2), Vertex(-0.7, -0.3, -0.8), Vertex(-0.3, -0.2, -1.0) };
+  SDL_FillRect( SDL_GetVideoSurface(), NULL, 0 );
+
+  SDL_Event event;
+  int done = 0;
+      
+  while((!done)) {
+      SDL_PollEvent(&event)
+      SDL_FillRect( screen, NULL, SDL_MapRGB(screen->format, 50, 50, 50));
+      afficherTriangle(screen, listVertex);
+      listVertex[1].y -= 0.01;
+//      DrawPixel(screen, 255, 200, 255, 200, 180); 
+
+      if(event)switch(event.type) {
+                
+          case SDL_KEYDOWN:
+               done = 1;
+              break;
+
+          case SDL_MOUSEBUTTONDOWN:
+                // Handle mouse clicks here.
+              break;
+
+          case SDL_QUIT:
+              done = true;
+              break;
+                
+          default:
+              break;
+      }   // End switch
+            
+  }   // End while
+        
+
+  SDL_Quit();
+}
