@@ -127,7 +127,10 @@ void afficherTriangle(SDL_Surface *screen, Triangle t) {
     }
 
     if(tP[0].y == tP[1].y) {
-        dessinerLigne(screen, tP[0].x, tP[1].x, tP[0].y, colorFond);
+        if(tP[0].x < tP[1].x)
+            dessinerLigne(screen, tP[0].x, tP[1].x, tP[0].y, colorFond);
+        else
+            dessinerLigne(screen, tP[1].x, tP[0].x, tP[0].y, colorFond);
     } else {
         a1 = (vG.x - tP[0].x)/((float)vG.y - tP[0].y);
         a2 = (vD.x - tP[0].x)/((float)vD.y - tP[0].y);
@@ -137,25 +140,36 @@ void afficherTriangle(SDL_Surface *screen, Triangle t) {
 
             dessinerLigne(screen, xMin + tP[0].x, xMax + tP[0].x, y, colorFond);
             DrawPixel(screen, xMin + tP[0].x, y, colorLigneGauche);
-            DrawPixel(screen, xMin + tP[0].x, y, colorLigneDroite);
+            DrawPixel(screen, xMax + tP[0].x, y, colorLigneDroite);
             
             yP ++;
         }
     }
 
+    if(tP[0].x < tP[1].x) {
+        vG = tP[0];
+        vD = tP[1];
+    } else {
+        vD = tP[0];
+        vG = tP[1];
+    }
+
     yP = 0; 
     if(tP[0].y == tP[2].y) {
-        dessinerLigne(screen, MIN(tP[0].x, tP[1].x), MAX(tP[0].x, tP[1].x), tP[0].y, colorFond );
+        if(tP[0].x < tP[2].x)
+            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].y, colorFond);
+        else
+            dessinerLigne(screen, tP[2].x, tP[0].x, tP[0].y, colorFond);
     } else {
-        a1 = (tP[0].x - tP[2].x)/((float)tP[0].y - tP[2].y);
-        a2 = (tP[1].x - tP[2].x)/((float)tP[1].y - tP[2].y);
+        a1 = (vG.x - tP[2].x)/((float)vG.y - tP[2].y);
+        a2 = (vD.x - tP[2].x)/((float)vD.y - tP[2].y);
         for(int y=tP[2].y; y>tP[1].y; y--) {
             xMin = (int)(-a1 * yP);
             xMax = (int)(-a2 * yP);
             
-            dessinerLigne(screen, MIN(xMin, xMax) + tP[2].x , MAX(xMin, xMax) + tP[2].x, y, colorFond);
-            DrawPixel(screen, MIN(xMin, xMax) + tP[2].x, y, colorLigneGauche);
-            DrawPixel(screen, MAX(xMin, xMax) + tP[2].x, y, colorLigneDroite);
+            dessinerLigne(screen, xMin + tP[2].x , xMax + tP[2].x, y, colorFond);
+            DrawPixel(screen, xMin + tP[2].x, y, colorLigneGauche);
+            DrawPixel(screen, xMax + tP[2].x, y, colorLigneDroite);
 
             yP ++;
         }
