@@ -55,17 +55,17 @@ void projeter(Vertex i, Point & pt) {
 void afficherVertex(SDL_Surface *screen, Vertex lVertex[], int tVertex) {
     Point proj;
 
-    Uint32 color = SDL_MapRGB(screen->format, 255, 255, 255);
-    
-    for(int i=0; i< tVertex; i++) {
-        projeter(lVertex[i], proj);
-        DrawPixel(screen, proj.x-1, proj.y, color);
-        DrawPixel(screen, proj.x+1, proj.y, color);
-        DrawPixel(screen, proj.x, proj.y-1, color);
-        DrawPixel(screen, proj.x, proj.y+1, color);
-        DrawPixel(screen, proj.x, proj.y, color);        
-        
-    }
+//    Uint32 color = SDL_MapRGB(screen->format, 255, 255, 255);
+//    
+//    for(int i=0; i< tVertex; i++) {
+//        projeter(lVertex[i], proj);
+//        DrawPixel(screen, proj.x-1, proj.y, color);
+//        DrawPixel(screen, proj.x+1, proj.y, color);
+//        DrawPixel(screen, proj.x, proj.y-1, color);
+//        DrawPixel(screen, proj.x, proj.y+1, color);
+//        DrawPixel(screen, proj.x, proj.y, color);        
+//        
+//    }
 }
 
 
@@ -100,7 +100,7 @@ void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color)
 void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, float zMin, float zMax, int y, float * zbuff, Uint32 color) {
     float nZ;
     float coeff = (zMax - zMin) / (xMax - xMin);
-    for(int x = xMin; x < xMax; x++) {
+    for(int x = xMin+1; x < xMax-1; x++) {
         nZ = coeff * (x - xMin) + zMin;
         if(nZ > zbuff[x + 640*y]) {
             DrawPixel(screen, x, y, color);
@@ -165,9 +165,9 @@ void afficherTriangle(SDL_Surface *screen, Triangle t, float * zbuff) {
     yP = 0; 
     if(tP[0].y == tP[2].y) {
         if(tP[0].x < tP[2].x)
-            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].y, colorFond);
+            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].z, tP[2].z, tP[0].y, zbuff, colorFond);
         else
-            dessinerLigne(screen, tP[2].x, tP[0].x, tP[0].y, colorFond);
+            dessinerLigne(screen, tP[2].x, tP[0].x, tP[2].z, tP[0].z, tP[0].y, zbuff, colorFond);
     } else {
         a1 = (vG.x - tP[2].x)/((float)vG.y - tP[2].y);
         a2 = (vD.x - tP[2].x)/((float)vD.y - tP[2].y);
@@ -175,9 +175,7 @@ void afficherTriangle(SDL_Surface *screen, Triangle t, float * zbuff) {
             xMin = (int)(-a1 * yP);
             xMax = (int)(-a2 * yP);
             
-            dessinerLigne(screen, xMin + tP[2].x , xMax + tP[2].x, y, colorFond);
-            DrawPixel(screen, xMin + tP[2].x, y, colorLigneGauche);
-            DrawPixel(screen, xMax + tP[2].x, y, colorLigneDroite);
+            dessinerLigne(screen, xMin + tP[2].x , xMax + tP[2].x, vG.z, vD.z, y, zbuff,  colorFond);
 
             yP ++;
         }
