@@ -1,3 +1,6 @@
-aff3d2:
-	g++ -std=c++0x -O2 -pg  -ggdb *.cpp -o aff3d -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -lSDL -lpthread -lm
+CC		=	g++
+CPPFLAGS	=	-std=c++0x -D_GNU_SOURCE=1 -D_REENTRANT -O0 -pg -ggdb -I/usr/include/SDL
+LDFLAGS		=	-lSDL -lpthread -lm
 
+
+aff3d: transfo.o triangle.o vertex.o IO.o

@@ -22,12 +22,12 @@
 #include <iostream>
 #include <stdlib.h>
 #include "SDL.h"
-#include <SDL_endian.h> /* Used for the endian-dependent 24 bpp mode */
-
+#include<vector>
 
 #include "vertex.h"
 #include "triangle.h"
 #include "transfo.h"
+#include "IO.h"
 
 using namespace std;
 
@@ -49,7 +49,7 @@ typedef struct _Point {
 void projeter(Vertex i, Point & pt) {
     pt.x = (i.x + 1.0) * 320;
     pt.y = (i.y + 1.0) * 320; 
-    pt.z = i.z+3.0;
+    pt.z = (i.z+1.0)*128;
 }
 
 void afficherVertex(SDL_Surface *screen, Vertex lVertex[], int tVertex) {
@@ -90,33 +90,34 @@ void trierInPlace(Point pt[]) {
     }
 }
 
+#define MIN(a,b) (a<b?a:b)
+#define MAX(a,b) (a>b?a:b)
 
 
 void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color) {
-    for(int x = xMin; x < xMax; x++)
+    
+    for(int x = MAX(0, xMin); x < MIN(xMax, 640); x++)
         DrawPixel(screen, x, y, color);
 }
 
-void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, float zMin, float zMax, int y, float * zbuff, Uint32 color) {
+void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, float zMin, float zMax, int y, int * zbuff, Uint32 color) {
     float nZ;
+    if(y < 0 || y > 639) return;
     float coeff = (zMax - zMin) / (xMax - xMin);
-    for(int x = xMin+1; x < xMax-1; x++) {
+    for(int x = MAX(0, xMin+1); x < MIN(639, xMax-1); x++) {
         nZ = coeff * (x - xMin) + zMin;
-        if(nZ > zbuff[x + 640*y]) {
+        if(nZ < zbuff[x + 640*y]) {
             DrawPixel(screen, x, y, color);
             zbuff[x + 640*y] = nZ;
         }
     }
 }
 
-#define MIN(a,b) (a<b?a:b)
-#define MAX(a,b) (a>b?a:b)
 
-void afficherTriangle(SDL_Surface *screen, Triangle t, float * zbuff) {
 
-    Uint32 colorFond = SDL_MapRGB(screen->format, 255, 50, 60);
-    Uint32 colorLigneGauche = SDL_MapRGB(screen->format, 0, 0, 255);
-    Uint32 colorLigneDroite = SDL_MapRGB(screen->format, 0, 255, 255);
+void afficherTriangle(SDL_Surface *screen, Triangle t, int * zbuff) {
+
+    Uint32 color = SDL_MapRGB(screen->format, t.r, t.g, t.b);
 
     Point tP[3];
     for (int v=0; v<3;v++)
@@ -138,9 +139,9 @@ void afficherTriangle(SDL_Surface *screen, Triangle t, float * zbuff) {
 
     if(tP[0].y == tP[1].y) {
         if(tP[0].x < tP[1].x)
-            dessinerLigne(screen, tP[0].x, tP[1].x, tP[0].z, tP[1].z, tP[0].y, zbuff, colorFond);
+            dessinerLigne(screen, tP[0].x, tP[1].x, tP[0].z, tP[1].z, tP[0].y, zbuff, color);
         else
-            dessinerLigne(screen, tP[1].x, tP[0].x, tP[1].z, tP[0].z, tP[0].y, zbuff, colorFond);
+            dessinerLigne(screen, tP[1].x, tP[0].x, tP[1].z, tP[0].z, tP[0].y, zbuff, color);
     } else {
         a1 = (vG.x - tP[0].x)/((float)vG.y - tP[0].y);
         a2 = (vD.x - tP[0].x)/((float)vD.y - tP[0].y);
@@ -148,7 +149,7 @@ void afficherTriangle(SDL_Surface *screen, Triangle t, float * zbuff) {
             xMin = (int)(a1 * yP);
             xMax = (int)(a2 * yP);
 
-            dessinerLigne(screen, xMin + tP[0].x, xMax + tP[0].x, vG.z, vD.z,  y, zbuff, colorFond);
+            dessinerLigne(screen, xMin + tP[0].x, xMax + tP[0].x, vG.z, vD.z,  y, zbuff, color);
        
             yP ++;
         }
@@ -165,9 +166,9 @@ void afficherTriangle(SDL_Surface *screen, Triangle t, float * zbuff) {
     yP = 0; 
     if(tP[0].y == tP[2].y) {
         if(tP[0].x < tP[2].x)
-            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].z, tP[2].z, tP[0].y, zbuff, colorFond);
+            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].z, tP[2].z, tP[0].y, zbuff, color);
         else
-            dessinerLigne(screen, tP[2].x, tP[0].x, tP[2].z, tP[0].z, tP[0].y, zbuff, colorFond);
+            dessinerLigne(screen, tP[2].x, tP[0].x, tP[2].z, tP[0].z, tP[0].y, zbuff, color);
     } else {
         a1 = (vG.x - tP[2].x)/((float)vG.y - tP[2].y);
         a2 = (vD.x - tP[2].x)/((float)vD.y - tP[2].y);
@@ -175,13 +176,11 @@ void afficherTriangle(SDL_Surface *screen, Triangle t, float * zbuff) {
             xMin = (int)(-a1 * yP);
             xMax = (int)(-a2 * yP);
             
-            dessinerLigne(screen, xMin + tP[2].x , xMax + tP[2].x, vG.z, vD.z, y, zbuff,  colorFond);
+            dessinerLigne(screen, xMin + tP[2].x , xMax + tP[2].x, vG.z, vD.z, y, zbuff,  color);
 
             yP ++;
         }
     }
-    
-    afficherVertex(screen, t.newState, 3);
 }
 
 
@@ -196,6 +195,9 @@ int main(int argc, char *argv[])
       cout << "Audio & Video initialized correctly" << endl;
   }
   
+  vector<Triangle> vectTriangle;
+  readFromFile("test.txt", vectTriangle);
+  
   SDL_Surface *screen;
 
   screen = SDL_SetVideoMode(640, 640, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
@@ -204,23 +206,21 @@ int main(int argc, char *argv[])
       SDL_Quit();
   }
 
-  Triangle t1 = Triangle( Vertex(0.0, 0.0, 0.0), Vertex(0.5, 0.0, 0.1), Vertex(0.0, 0.5, 0.0) );
-  Triangle t2 = Triangle( Vertex(0.0, 0.0, 0.0), Vertex(-0.5, 0.0, 0.0), Vertex(0.0, -0.5, 0.0) );
-  Triangle t3 = Triangle( Vertex(0.1, - 0.1, 0.1), Vertex(0.4, - 0.1, 0.1),    Vertex(0.1, -0.4, 0.1)    );
-  Triangle t4 = Triangle( Vertex(- 0.1,  0.1, -0.1), Vertex(- 0.4, 0.1,- 0.1),    Vertex(- 0.1, 0.4, -0.1)    );
-
   Transformation transfo;
   float delta[3];
   delta[0] = 0;
   delta[1] = 0;
   delta[2] = 0;
 
-  float zbuff[640*640];
+  int zbuff[640*640];
 
   SDL_Event event;
   int done = 0;
   unsigned int t=0;
   int sleep;
+  
+  vector<Triangle>::iterator it;
+  
   while((!done)) {
       cout <<SDL_GetTicks() - t <<"ms" <<endl;
       sleep = 24 - (SDL_GetTicks() - t);
@@ -229,29 +229,23 @@ int main(int argc, char *argv[])
       SDL_FillRect( screen, NULL, SDL_MapRGB(screen->format, 50, 50, 50));
      
       for(int i=0;i<640*640;i++)
-          zbuff[i]=0;
+          zbuff[i]=255;
 
       delta[0] = cos(t/600.0)/4.0;
       delta[1] = sin(t/600.0)/3.0;
       transfo = Transformation();
-      transfo.translate(delta);
-      transfo.rotationZ(t/6000.0);
+ //     transfo.translate(delta);
+ //     transfo.rotationZ(t/6000.0);
       transfo.rotationX(t/3000.0);
+ 
+      for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
+          it->appliquerTransfo(transfo);
+          afficherTriangle(screen, (*it), zbuff);
+      }
 
-      t1.appliquerTransfo(transfo);
-      t2.appliquerTransfo(transfo);
-      t3.appliquerTransfo(transfo);
-      t4.appliquerTransfo(transfo);
-      
-      afficherTriangle(screen, t1, zbuff);
-      afficherTriangle(screen, t2, zbuff);
-      afficherTriangle(screen, t3, zbuff);
-      afficherTriangle(screen, t4, zbuff);
-
-//      for(int i=0;i<640;i++)
-//         for(int j=0;j<640;j++)
-//              DrawPixel(screen, i, j, SDL_MapRGB(screen->format, (int)10*zbuff[i+j*640], (int)10*zbuff[i+j*640], (int)10*zbuff[i+j*640] ) );
-
+      for(int x=0;x<640;x++)
+          for(int y=0;y<640;y++)
+              DrawPixel(screen, x, y, SDL_MapRGB(screen->format, zbuff[x + 640*y], 10, 10));
       SDL_Flip(screen);
 
       if(SDL_PollEvent(&event)) switch(event.type) {

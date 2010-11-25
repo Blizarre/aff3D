@@ -25,19 +25,21 @@
 
 #include "transfo.h"
 
+
 class Vertex {
     public:
     float x, y, z;
-
+    
     Vertex() {
     }
 
-    Vertex(float a, float b, float c){
-        this->x = a;
-        this->y = b;
-        this->z = c;
+    Vertex(float x, float y, float z){
+        this->x = x;
+        this->y = y;
+        this->z = z;
     }
 
+    
     Vertex appliquerTransfo(Transformation t);
 
 };

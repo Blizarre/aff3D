@@ -18,25 +18,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifndef __TRIANGLE_H_443354423
+
+#define __TRIANGLE_H_443354423
+
 #include "vertex.h"
 #include "transfo.h"
 
+typedef unsigned char u8;
+
 class Triangle {
     public:
+    u8 r, g, b;
     Vertex points[3];
     Vertex newState[3];
 
     Triangle() {
-        points[0] = Vertex();
-        points[1] = Vertex();
-        points[2] = Vertex();
+        Triangle(Vertex(), Vertex(), Vertex());
     }
-
+    
     Triangle(Vertex a, Vertex b, Vertex c){
         this->points[0] = a;
         this->points[1] = b;
         this->points[2] = c;
+        this->r = 0;
+        this->g = 0;
+        this->b = 255;    
+    }
+    
+    Triangle(Vertex a, Vertex b, Vertex c, u8 cr, u8 cg, u8 cb){
+        this->points[0] = a;
+        this->points[1] = b;
+        this->points[2] = c;
+        this->r = cr;
+        this->g = cg;
+        this->b = cb;    
     }
 
     void appliquerTransfo(Transformation t);
 };
+
+#endif
