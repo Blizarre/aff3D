@@ -24,7 +24,7 @@
 #define __VERTEX_V__1325465
 
 #include "transfo.h"
-
+#include <cmath>
 
 class Vertex {
     public:
@@ -39,9 +39,15 @@ class Vertex {
         this->z = z;
     }
 
+    Vertex operator*(Vertex v);
+    Vertex operator-(Vertex v);
+    Vertex operator/(float f);
+
     
     Vertex appliquerTransfo(Transformation t);
-
+    
+    float norme();
+    void normer();
 };
 
 

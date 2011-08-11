@@ -3,6 +3,7 @@
 #define __IO_H__1234
 
 #include <stdio.h>
+#include <string>
 #include <iostream>
 #include <vector>
 
@@ -11,6 +12,6 @@
 
 using namespace std;
 
-void readFromFile(char* fileName, vector<Triangle> & vectTriangle);
+void readFromFile(string fileName, vector<Triangle> & vectTriangle);
 
 #endif

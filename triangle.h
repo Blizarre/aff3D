@@ -30,32 +30,37 @@ typedef unsigned char u8;
 class Triangle {
     public:
     u8 r, g, b;
-    Vertex points[3];
-    Vertex newState[3];
+    Vertex points[4];
+    Vertex newState[4];
 
     Triangle() {
-        Triangle(Vertex(), Vertex(), Vertex());
+        Triangle(Vertex(), Vertex(), Vertex(), Vertex());
     }
     
-    Triangle(Vertex a, Vertex b, Vertex c){
+    Triangle(Vertex a, Vertex b, Vertex c, Vertex n){
         this->points[0] = a;
         this->points[1] = b;
         this->points[2] = c;
+        this->points[3] = n;
         this->r = 0;
         this->g = 0;
         this->b = 255;    
     }
     
-    Triangle(Vertex a, Vertex b, Vertex c, u8 cr, u8 cg, u8 cb){
+    Triangle(Vertex a, Vertex b, Vertex c, Vertex n, u8 cr, u8 cg, u8 cb){
         this->points[0] = a;
         this->points[1] = b;
         this->points[2] = c;
+        this->points[3] = n;
         this->r = cr;
         this->g = cg;
         this->b = cb;    
     }
 
     void appliquerTransfo(Transformation t);
+
+    float distanceMoyenne() const;
+    bool estAffiche();
 };
 
 #endif

@@ -1,9 +1,10 @@
 
 #include "IO.h"
 
-void readFromFile(char* fileName, vector<Triangle> & vectTriangle) {
+void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
 
-    FILE* fd = fopen(fileName, "r");
+    char dummy[200];
+    FILE* fd = fopen(fileName.c_str(), "r");
     
     if(!fd) {
         cerr << "Erreur d'ouverture du fichier" << fileName <<endl;
@@ -12,19 +13,28 @@ void readFromFile(char* fileName, vector<Triangle> & vectTriangle) {
     float x,y,z,r,g,b;
     int nbLu = 0;
     
-    Vertex v[3];
+    Vertex v[3], v2[3];
     
     bool erreur = false;
     while( ! feof(fd) ) {
-        for(int i=0; i<3;i++) {
+        for(int i=0; i<4;i++) { // x y z norm
             nbLu = fscanf(fd, "%f %f %f", &x, &y, &z);
             if(nbLu != 3) 
                 erreur = true;
-            v[i] = Vertex(x,y,z);
+            if(i==0) {
+                v[i] = Vertex(x,y,z);
+                v2[i] = Vertex(x,y,-z);;
+            } else {
+                v[i] = Vertex(x/100.0 -0.8,0.5 - y/100.0 ,z/100.0-1 );
+                v2[i] = Vertex(x/100.0 -0.8,0.5 - y/100.0 ,(-z)/100.0-1 );
+            }
         }
-        fscanf(fd, "%f %f %f", &r, &g, &b);
-        if(! erreur)
-            vectTriangle.push_back( Triangle(v[0], v[1], v[2], r,g,b) );
+        if(! erreur) {
+            v[0].normer();
+            v2[0].normer();
+            vectTriangle.push_back( Triangle(v[1], v[2], v[3], v[0], 0,0,255) );
+            vectTriangle.push_back( Triangle(v2[1], v2[2], v2[3], v2[0], 0,0,255) );
+        }
     }
 
     fclose(fd);
