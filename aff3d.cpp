@@ -32,8 +32,8 @@
 
 using namespace std;
 
-#define SCR_X 1000
-#define SCR_Y 1000
+#define SCR_X 640
+#define SCR_Y 640
 
 
 void DrawPixel(SDL_Surface *screen, int x, int y,Uint32 color)
@@ -58,10 +58,17 @@ typedef struct _Point {
 } Point;
 
 
+/**
+* Projète le vertex dans l'espca de l'écran. le +0.5 permet de mettre le point de centre (x=0, y=0) au centre de l'écran 
+qui a par convention un champ de vue de 1 unité en X et 1 unité en Y.
+Pour Z, +2 pour être certain qu'on sera devant.
+**/
 void projeter(Vertex i, Point & pt) {
-    pt.x = (int)((i.x + 1.0) * SCR_X/2.0);
-    pt.y = (int)((i.y + 1.0) * SCR_Y/2.0); 
-    pt.z = (float)((i.z) + 1.0);
+//    cout <<i.x <<" "<< i.y <<" " << i.z << endl;
+    pt.x = (int)((i.x + 0.5)*SCR_X);
+    pt.y = (int)((i.y + 0.5) * SCR_Y); 
+    pt.z = (float)(i.z + 2.0);
+//    cout <<pt.x <<" "<< pt.y <<" " << pt.z << endl;
 }
 
 
@@ -247,15 +254,16 @@ int main(int argc, char *argv[])
       t = SDL_GetTicks();
       SDL_FillRect( screen, NULL, SDL_MapRGB(screen->format, 50, 50, 50));
 
-      delta[0] = cos(t/600.0)/4.0;
-      delta[1] = sin(t/600.0)/3.0;
+//      delta[0] = cos(t/600.0)/4.0;
+//      delta[1] = sin(t/600.0)/3.0;
       transfo = Transformation();
 //      transfo.translate(delta);
-        transfo.rotationZ(t/6000.0);
-        transfo.rotationX(t/30000.0);
+        transfo.rotationY(t/6000.0);
+        transfo.rotationZ(t/50000.0);
  
       for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
-          it->appliquerTransfo(transfo);
+     //     cout <<it->points[0].x << " " << it->points[0].y << " " << it->points[0].z << endl;
+                   it->appliquerTransfo(transfo);
       }
       std::sort(vectTriangle.begin(), vectTriangle.end(), trierTriangle );
       for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {

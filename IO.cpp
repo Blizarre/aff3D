@@ -1,6 +1,9 @@
 
 #include "IO.h"
 
+#define MAX(a,b)    ((a)>(b)?(a):(b))
+#define MAX3(a,b,c) (MAX( MAX((a),(b)), (c)))
+
 void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
 
     char dummy[200];
@@ -23,10 +26,10 @@ void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
                 erreur = true;
             if(i==0) {
                 v[i] = Vertex(x,y,z);
-                v2[i] = Vertex(x,y,-z);;
+                v2[i] = Vertex(x,y,z); 
             } else {
-                v[i] = Vertex(x/100.0 -0.8,0.5 - y/100.0 ,z/100.0-1 );
-                v2[i] = Vertex(x/100.0 -0.8,0.5 - y/100.0 ,(-z)/100.0-1 );
+                v[i]  = Vertex(x, y, z);
+                v2[i] = Vertex(x, y, - z); // -z car seconde moitiée d la théière
             }
         }
         if(! erreur) {
@@ -38,6 +41,36 @@ void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
     }
 
     fclose(fd);
+    
+    cout << "scaling model" <<endl;
+    vector<Triangle>::iterator tr;
+    float minX = 100000, maxX = -100000, minY = 100000, maxY = -100000, minZ = 100000, maxZ = -100000;
+    int numVert;
+    for(tr = vectTriangle.begin(); tr != vectTriangle.end(); tr++) {
+        for(numVert = 0; numVert < 3; numVert ++) {
+            if(tr->points[numVert].x < minX) minX = tr->points[numVert].x;
+            if(tr->points[numVert].y < minY) minY = tr->points[numVert].y;
+            if(tr->points[numVert].z < minZ) minZ = tr->points[numVert].z;
+            if(tr->points[numVert].x > maxX) maxX = tr->points[numVert].x;
+            if(tr->points[numVert].y > maxY) maxY = tr->points[numVert].y;
+            if(tr->points[numVert].z > maxZ) maxZ = tr->points[numVert].z;
+        }
+    }
+    cout <<"minX: "<< minX<< ", maxX: " << maxX <<endl;
+    
+    float coeffEchelle = MAX3(maxX-minX, maxY-minY, maxZ-minZ);
+    
+    for(tr = vectTriangle.begin(); tr != vectTriangle.end(); tr++) {
+        for(numVert = 0; numVert < 3; numVert ++) {
+            tr->points[numVert].x -= (maxX - minX)/2.0;
+            tr->points[numVert].y -= (maxY - minY)/2.0;
+            tr->points[numVert].z -= (maxZ - minZ)/2.0;
+            
+            tr->points[numVert].x /= coeffEchelle;
+            tr->points[numVert].y /= coeffEchelle;
+            tr->points[numVert].z /= coeffEchelle;
+        }
+    }
     
     cout <<"Triangles lu : " <<vectTriangle.size() <<endl;
 }
