@@ -64,11 +64,9 @@ qui a par convention un champ de vue de 1 unité en X et 1 unité en Y.
 Pour Z, +2 pour être certain qu'on sera devant.
 **/
 void projeter(Vertex i, Point & pt) {
-//    cout <<i.x <<" "<< i.y <<" " << i.z << endl;
     pt.x = (int)((i.x + 0.5)*SCR_X);
     pt.y = (int)((i.y + 0.5) * SCR_Y); 
     pt.z = (float)(i.z + 2.0);
-//    cout <<pt.x <<" "<< pt.y <<" " << pt.z << endl;
 }
 
 
@@ -210,12 +208,22 @@ SDL_Surface* SDL_initialiser() {
         cerr << "Impossible de passer en "<<SCR_X << "x" << SCR_Y <<" : " << SDL_GetError() <<endl;
         SDL_Quit();
     }
+    cout << "initialisation terminée" <<endl;
 
     return screen;
 }
 
-
-
+void flouterEcran(SDL_Surface* screen, signed char* tabRandom) {
+    int x, y, color;
+    SDL_Surface* screenTEMP = SDL_ConvertSurface(screen, screen->format, SDL_SWSURFACE); // copie de la surface pour éviter de propager les diffusions
+    
+    for(x=10;x<SCR_X-10; x++)
+        for(y=10;y<SCR_Y-10; y++) {
+            color =  GetPixel(screenTEMP, x+tabRandom[x*y%100], y+tabRandom[x*y%100]);
+            DrawPixel(screen, x, y, color);
+        }
+    
+}
 
 bool trierTriangle(const Triangle& d1, const Triangle& d2)
 {
@@ -230,64 +238,95 @@ int main(int argc, char *argv[])
   float delta[3];
   SDL_Event event;
   int done = 0;
-  unsigned int t=0;
+  unsigned int t=0, initTime = 0;
   int sleep;
-
+  bool flouter = false;
   vector<Triangle>::iterator it;
 
+  bool mouvementAuto = true;
+  
   delta[0] = 0;
   delta[1] = 0;
   delta[2] = 0;
   
-  int trCount = 0;
-
+  int trCount = 0, frameCount = 0;
   readFromFile("newteapot.stl", vectTriangle);
   
   screen = SDL_initialiser();
+  initTime = SDL_GetTicks();
 
-  while(!done) { //  Game Loop
-      
+  signed char tab[100], i;
+  for(i=0;i<100;i++)
+      tab[i]=random()%20-10;
+  
+  float rotX = 0.01, rotY=0.01;
+  
+  while(!done) { 
+      frameCount ++;
       cout <<SDL_GetTicks() - t <<"ms (" << trCount << ")"<<endl;
       trCount = 0;
       sleep = 24 - (SDL_GetTicks() - t);
       SDL_Delay( (sleep > 0?sleep:1) );
       t = SDL_GetTicks();
       SDL_FillRect( screen, NULL, SDL_MapRGB(screen->format, 50, 50, 50));
-
-//      delta[0] = cos(t/600.0)/4.0;
-//      delta[1] = sin(t/600.0)/3.0;
+//      delta[0] = 0; //cos(t/600.0)/4.0;
+ //     delta[1] = 0.2; //sin(t/600.0)/3.0;
       transfo = Transformation();
+      if(mouvementAuto) {
 //      transfo.translate(delta);
-        transfo.rotationY(t/6000.0);
+        transfo.rotationX(t/6000.0);
         transfo.rotationZ(t/50000.0);
- 
+        } else {
+        transfo.rotationX(rotX);
+        transfo.rotationY(rotY);
+  }
+
       for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
-     //     cout <<it->points[0].x << " " << it->points[0].y << " " << it->points[0].z << endl;
                    it->appliquerTransfo(transfo);
       }
       std::sort(vectTriangle.begin(), vectTriangle.end(), trierTriangle );
       for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
-          if(it->estAffiche()) //{ #DEBUG ME
+          if(it->estAffiche()) { //DEBUG ME
               trCount ++;
               afficherTriangle(screen, (*it));
-          //}
-//          afficherVertex(screen, (*it));
+          }
+        //  afficherVertex(screen, (*it));
       }
 
+    if (flouter)
+        flouterEcran(screen, tab);
 
       SDL_Flip(screen);
 
       if(SDL_PollEvent(&event)) switch(event.type) {
 
+          case SDL_MOUSEMOTION:
+            rotX = rotX + event.motion.yrel/60.0;
+            rotY = rotY + event.motion.xrel/60.0;
+            break;
+        
           case SDL_KEYDOWN:
-               done = true;
+            cout << "scancode " << (int)(event.key.keysym.scancode) <<" unicode " << event.key.keysym.unicode <<endl;
+            if( (int)(event.key.keysym.scancode) == 41) {// 'F'
+               flouter = !flouter;
+              break;
+            }
+
+            if( (int)(event.key.keysym.scancode) == 24) {// 'A' ... en azerty
+               mouvementAuto = !mouvementAuto;
+              break;
+            }
+            
+            if(event.key.keysym.sym == SDLK_ESCAPE)
+               done=true;
               break;
 
           case SDL_QUIT:
               done = true;
               break;
       }
+      while(SDL_PollEvent(&event)) { }
   }   // End Game Loop
-
+//  cout <<frameCount <<" frames in "<<(SDL_GetTicks()-initTime)<<" ms., mean fps : "<< int(frameCount / ((SDL_GetTicks()-initTime)/1000.0)) <<endl;;
   SDL_Quit();
 }

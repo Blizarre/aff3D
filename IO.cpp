@@ -20,22 +20,17 @@ void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
     
     bool erreur = false;
     while( ! feof(fd) ) {
-        for(int i=0; i<4;i++) { // x y z norm
+        for(int i=0; i<4;i++) { // normale du triangle, puis points 1, 2, 3 du triangle
             nbLu = fscanf(fd, "%f %f %f", &x, &y, &z);
             if(nbLu != 3) 
                 erreur = true;
-            if(i==0) {
-                v[i] = Vertex(x,y,z);
-                v2[i] = Vertex(x,y,z); 
-            } else {
                 v[i]  = Vertex(x, y, z);
-                v2[i] = Vertex(x, y, - z); // -z car seconde moitiée d la théière
-            }
+                v2[i] = Vertex(x, y, - z); // -z car le fichier ne contient qu'une moitiée de théière. v2 représente l'autre moitiée
         }
         if(! erreur) {
             v[0].normer();
             v2[0].normer();
-            vectTriangle.push_back( Triangle(v[1], v[2], v[3], v[0], 0,0,255) );
+            vectTriangle.push_back( Triangle(v[1], v[2], v[3], v[0], 0,0,255) );       // point 1, 2, 3, puis normale
             vectTriangle.push_back( Triangle(v2[1], v2[2], v2[3], v2[0], 0,0,255) );
         }
     }
@@ -67,9 +62,10 @@ void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
             tr->points[numVert].z -= (maxZ - minZ)/2.0;
             
             tr->points[numVert].x /= coeffEchelle;
-            tr->points[numVert].y /= coeffEchelle;
+            tr->points[numVert].y /= -coeffEchelle; // le "-" permer d'avoir la théière dans le bon sens (couvercle vers le haut)
             tr->points[numVert].z /= coeffEchelle;
         }
+        tr->points[3].y = -tr->points[3].y; // De même avec la normale
     }
     
     cout <<"Triangles lu : " <<vectTriangle.size() <<endl;

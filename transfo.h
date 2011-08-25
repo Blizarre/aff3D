@@ -13,8 +13,10 @@ class Transformation {
     }
 
     void translate(const float delta[3]);
-    void rotationZ(const float rot);
+    
     void rotationX(const float rot);
+    void rotationY(const float rot);
+    void rotationZ(const float rot);
 };
 
 #endif

@@ -8,8 +8,8 @@ CC		=	g++
 
 
 #CPPFLAGS   =   -std=c++0x -D_GNU_SOURCE=1 -D_REENTRANT -O3 -I/usr/include/SDL
-CPPFLAGS   =    $(PROF)  -std=c++0x -D_GNU_SOURCE=1 -D_REENTRANT -g -O2 -I/usr/include/SDL
-#CPPFLAGS	=	-std=c++0x -D_GNU_SOURCE=1 -D_REENTRANT -O0 -pg -ggdb -I/usr/include/SDL
+#CPPFLAGS   =    $(PROF)  -std=c++0x -D_GNU_SOURCE=1 -D_REENTRANT -g -O2 -I/usr/include/SDL
+CPPFLAGS	=	-std=c++0x -D_GNU_SOURCE=1 -D_REENTRANT -O0 -pg -ggdb -I/usr/include/SDL
 LDFLAGS		=	$(PROF) -lSDL -lpthread -lm 
 
 
