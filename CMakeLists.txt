@@ -14,7 +14,6 @@ file( GLOB
     src/*.cpp
     )
 
-set(SDLMAIN_LIBRARY "null")
 include_directories(${SDL_INCLUDE_DIR})
 
 ADD_EXECUTABLE(aff3D ${sources})
