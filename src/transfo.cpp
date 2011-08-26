@@ -47,6 +47,7 @@ void Transformation::rotationX(const float rot) {
  * cosT   0     sinT
  * 0      1     0
  * -sinT  0     cosT
+ *  TODO:broken, surtout pour la normale. A verifier
  * */
 void Transformation::rotationY(const float rot) {
     float* mat = this->matrix;

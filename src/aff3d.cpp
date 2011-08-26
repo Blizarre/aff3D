@@ -114,8 +114,8 @@ void afficherVertex(SDL_Surface *screen, Triangle t) {
 
 void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color, bool isWireFrame) {
     if(isWireFrame and y > 0 and y < SCR_Y) {
-        DrawPixel(screen, xMin, y, color);
-        DrawPixel(screen, xMax, y, color);
+        if(xMin > 0 and xMin < SCR_X - 1) DrawPixel(screen, xMin, y, color);
+        if(xMin > 0 and xMax < SCR_X - 1) DrawPixel(screen, xMax, y, color);
     } else 
         for(int x = MAX(0, xMin-1); x < MIN(SCR_X - 1,  xMax+1); x++) // +1 et -1 pour éviter les artefacts "fil de fer"
             DrawPixel(screen, x, y, color);
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 
     signed char tab[100], i;
     for(i=0;i<100;i++)
-        tab[i]=random()%20-10;
+        tab[i]=random()%19-9;
 
     float rotX = 0.01, rotY=0.01;
 
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
             transfo.rotationZ(t/50000.0);
         } else {
             transfo.rotationX(rotX);
-            transfo.rotationY(rotY);
+            transfo.rotationZ(rotY);
         }
 
         for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
         }
         std::sort(vectTriangle.begin(), vectTriangle.end(), trierTriangle );
         for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
-            if(backfaceC || it->estAffiche()) { //DEBUG ME
+            if(backfaceC || it->estAffiche()) { 
                 trCount ++;
                 afficherTriangle(screen, (*it), isWireframe);
             }
