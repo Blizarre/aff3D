@@ -13,6 +13,6 @@
 
 using namespace std;
 
-void readFromFile(string fileName, vector<Triangle> & vectTriangle);
+bool readFromFile(string fileName, vector<Triangle> & vectTriangle);
 
 #endif

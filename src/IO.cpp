@@ -3,16 +3,17 @@
 
 /**
  * Lit le fichier de données depuis le fichier filename. pour l'instant, le format est 
- * non documenté (STL reformaté). A améliorer pour prendre en compte le STL
+ * non documenté (STL reformaté). A améliorer pour prendre en compte le STL et les erreurs.
+ * Renvoie vrai si le fichier est lu. 
  **/
-void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
+bool readFromFile(string fileName, vector<Triangle> & vectTriangle) {
 
     char dummy[200];
     FILE* fd = fopen(fileName.c_str(), "r");
     
     if(!fd) {
         cerr << "Erreur d'ouverture du fichier" << fileName <<endl;
-        exit(0);
+        return false;
     }
     float x,y,z,r,g,b;
     int nbLu = 0;
@@ -70,4 +71,5 @@ void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
     }
     
     cout <<"Triangles lu : " <<vectTriangle.size() <<endl;
+    return true;
 }

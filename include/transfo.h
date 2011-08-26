@@ -9,7 +9,14 @@ class Transformation {
     float matrix[16];
 
     Transformation () {
-        this->matrix={1,0,0,0,   0,1,0,0, 0,0,1,0, 0,0,0,1};
+        // Initialisation de la matrice unité : 0 partout sauf sur la
+        // diagonale où il y a des 1
+        for(int i=1; i<15; i++)
+            this->matrix[i] = 0;
+        this->matrix[0] = 1;
+        this->matrix[5] = 1;
+        this->matrix[10] = 1;
+        this->matrix[15] = 1;
     }
 
     void translate(const float delta[3]);
