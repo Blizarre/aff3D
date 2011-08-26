@@ -30,21 +30,20 @@ class Vertex {
     public:
     float x, y, z;
     
-    Vertex() {
-    }
+    /**
+     * Constructeur par défaut : Attention, les valeurs de x, y et z ne sont pas initialisées
+     **/
+    Vertex() { }
 
-    Vertex(float x, float y, float z){
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
+    Vertex(const float _x, const float _y, const float _z): x(_x), y(_y), z(_z) { }
+    Vertex(const Vertex &v): x(v.x), y(v.y), z(v.z) { }
 
-    Vertex operator*(Vertex v);
-    Vertex operator-(Vertex v);
-    Vertex operator/(float f);
+    Vertex operator*(const Vertex v);
+    Vertex operator-(const Vertex v);
+    Vertex operator/(const float f);
 
     
-    Vertex appliquerTransfo(Transformation t);
+    Vertex appliquerTransfo(const Transformation t);
     
     float norme();
     void normer();

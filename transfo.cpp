@@ -43,6 +43,11 @@ void Transformation::rotationX(const float rot) {
     mat[10] = a*sinR + b*cosR;
 }
 
+/**
+ * cosT   0     sinT
+ * 0      1     0
+ * -sinT  0     cosT
+ * */
 void Transformation::rotationY(const float rot) {
     float* mat = this->matrix;
     float a, b, cosR, sinR;
@@ -66,6 +71,11 @@ void Transformation::rotationY(const float rot) {
 }
 
 
+/**
+ * cosT  -sinT 0
+ * sinT  cosT  0
+ * 0     0     1
+ * */
 void Transformation::rotationZ(const float rot) {
     float* mat = this->matrix;
     float a, b, cosR, sinR;

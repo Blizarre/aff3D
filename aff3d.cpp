@@ -29,6 +29,7 @@
 #include "triangle.h"
 #include "transfo.h"
 #include "IO.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -91,11 +92,6 @@ void trierInPlace(Point pt[]) {
     }
 }
 
-#define MIN(a,b) (a<b?a:b)
-#define MAX(a,b) (a>b?a:b)
-
-
-
 
 void afficherVertex(SDL_Surface *screen, Triangle t) {
     Point tP[3];
@@ -116,20 +112,18 @@ void afficherVertex(SDL_Surface *screen, Triangle t) {
 }
 
 
-void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color) {
-#ifdef WIREFRAME
-    DrawPixel(screen, xMin, y, color);
-    DrawPixel(screen, xMax, y, color);
-#else
-    for(int x = MAX(0, xMin-1); x < MIN(SCR_X - 1,  xMax+1); x++) { // +1 et -1 pour éviter les artefacts "fil de fer"
-        DrawPixel(screen, x, y, color);
-    }
-#endif
+void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color, bool isWireFrame) {
+    if(isWireFrame and y > 0 and y < SCR_Y) {
+        DrawPixel(screen, xMin, y, color);
+        DrawPixel(screen, xMax, y, color);
+    } else 
+        for(int x = MAX(0, xMin-1); x < MIN(SCR_X - 1,  xMax+1); x++) // +1 et -1 pour éviter les artefacts "fil de fer"
+            DrawPixel(screen, x, y, color);
 }
 
 
 
-void afficherTriangle(SDL_Surface *screen, Triangle t) {
+void afficherTriangle(SDL_Surface *screen, Triangle t, bool isWireFrame) {
 
     Vertex lumiere(0.5574,0.5574, 0.5574);
     float light = lumiere.x * t.newState[3].x + lumiere.y * t.newState[3].y + lumiere.z * t.newState[3].z;
@@ -149,9 +143,9 @@ void afficherTriangle(SDL_Surface *screen, Triangle t) {
     int yP = 0;
     if(tP[0].y == tP[1].y && tP[0].y > 0 && tP[0].y < SCR_Y-1) {
         if(tP[0].x < tP[1].x)
-            dessinerLigne(screen, tP[0].x, tP[1].x, tP[0].y, color);
+            dessinerLigne(screen, tP[0].x, tP[1].x, tP[0].y, color, isWireFrame);
         else
-            dessinerLigne(screen, tP[1].x, tP[0].x, tP[0].y, color);
+            dessinerLigne(screen, tP[1].x, tP[0].x, tP[0].y, color, isWireFrame);
     } else {
         a1 = (tP[1].x - tP[0].x)/((float)tP[1].y - tP[0].y);
         a2 = (tP[2].x - tP[0].x)/((float)tP[2].y - tP[0].y);
@@ -161,8 +155,8 @@ void afficherTriangle(SDL_Surface *screen, Triangle t) {
             x1 = (int)(a1 * yP);
             x2 = (int)(a2 * yP);
             
-            if(x1 < x2 )  dessinerLigne(screen, x1 + tP[0].x, x2 + tP[0].x, y, color);
-            else          dessinerLigne(screen, x2 + tP[0].x, x1 + tP[0].x, y, color);            
+            if(x1 < x2 )  dessinerLigne(screen, x1 + tP[0].x, x2 + tP[0].x, y, color, isWireFrame);
+            else          dessinerLigne(screen, x2 + tP[0].x, x1 + tP[0].x, y, color, isWireFrame);            
             
             yP ++;
         }
@@ -171,9 +165,9 @@ void afficherTriangle(SDL_Surface *screen, Triangle t) {
     yP = 0; 
     if(tP[0].y == tP[2].y && tP[0].y > 0 && tP[0].y < SCR_Y-1) {
         if(tP[0].x < tP[2].x)
-            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].y, color);
+            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].y, color, isWireFrame);
         else
-            dessinerLigne(screen, tP[2].x, tP[0].x, tP[0].y, color);
+            dessinerLigne(screen, tP[2].x, tP[0].x, tP[0].y, color, isWireFrame);
     } else {
         a1 = (tP[0].x - tP[2].x)/((float)tP[0].y - tP[2].y);
         a2 = (tP[1].x - tP[2].x)/((float)tP[1].y - tP[2].y);
@@ -181,8 +175,8 @@ void afficherTriangle(SDL_Surface *screen, Triangle t) {
             x1 = (int)(- a1 * yP);
             x2 = (int)(- a2 * yP);
 
-            if( x1 < x2 ) dessinerLigne(screen, x1 + tP[2].x, x2 + tP[2].x, y, color);
-            else          dessinerLigne(screen, x2 + tP[2].x, x1 + tP[2].x, y, color);            
+            if( x1 < x2 ) dessinerLigne(screen, x1 + tP[2].x, x2 + tP[2].x, y, color, isWireFrame);
+            else          dessinerLigne(screen, x2 + tP[2].x, x1 + tP[2].x, y, color, isWireFrame);            
 
             yP ++;
         }
@@ -240,7 +234,7 @@ int main(int argc, char *argv[])
   int done = 0;
   unsigned int t=0, initTime = 0;
   int sleep;
-  bool flouter = false;
+  bool flouter = false, isWireframe = false, backfaceC=false;
   vector<Triangle>::iterator it;
 
   bool mouvementAuto = true;
@@ -286,9 +280,9 @@ int main(int argc, char *argv[])
       }
       std::sort(vectTriangle.begin(), vectTriangle.end(), trierTriangle );
       for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
-          if(it->estAffiche()) { //DEBUG ME
+          if(backfaceC || it->estAffiche()) { //DEBUG ME
               trCount ++;
-              afficherTriangle(screen, (*it));
+              afficherTriangle(screen, (*it), isWireframe);
           }
         //  afficherVertex(screen, (*it));
       }
@@ -309,6 +303,16 @@ int main(int argc, char *argv[])
             cout << "scancode " << (int)(event.key.keysym.scancode) <<" unicode " << event.key.keysym.unicode <<endl;
             if( (int)(event.key.keysym.scancode) == 41) {// 'F'
                flouter = !flouter;
+              break;
+            }
+
+            if( (int)(event.key.keysym.scancode) == 52) {// 'w'
+               isWireframe = !isWireframe;
+              break;
+            }
+
+            if( (int)(event.key.keysym.scancode) == 56) {// 'b'
+               backfaceC = !backfaceC;
               break;
             }
 

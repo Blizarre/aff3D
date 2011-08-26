@@ -1,8 +1,12 @@
 #include"vertex.h"
 
 
-Vertex Vertex::appliquerTransfo(Transformation t) {
-    float * coeffs = t.matrix;
+/**
+ * renvoie un nouveau Vertex correspondant au résultat de la transformation du vertex courant par
+ * la matrice t 
+ **/
+Vertex Vertex::appliquerTransfo(const Transformation t) {
+    const float * coeffs = t.matrix;
     float ox, oy, oz;
     float nx, ny, nz;
 
@@ -13,7 +17,11 @@ Vertex Vertex::appliquerTransfo(Transformation t) {
     return Vertex(nx, ny, nz);
 }
 
-Vertex Vertex::operator*(Vertex v) {
+/**
+ * renvoie un nouveau Vertex résultat de la multipication membre à membre
+ * des éléments du vecteur courant avec ceux de v
+ **/
+Vertex Vertex::operator*(const Vertex v) {
     float x, y, z;
     x = v.x * this->x;
     y = v.y * this->y;
@@ -21,7 +29,11 @@ Vertex Vertex::operator*(Vertex v) {
     return Vertex(x, y, z);
 }
 
-Vertex Vertex::operator-(Vertex v) {
+/**
+ * Renvoie un nouveau Vertex résultat de la soustraction membre à membre
+ * des éléments du vecteur courant avec ceux de v
+ **/
+Vertex Vertex::operator-(const Vertex v) {
     float x, y, z;
     x = this->x - v.x;
     y = this->y - v.y;
@@ -29,7 +41,10 @@ Vertex Vertex::operator-(Vertex v) {
     return Vertex(x, y, z);
 }
     
-Vertex Vertex::operator/(float f) {
+/**
+ * renvoie un nouveau Vertex avec les éléments du vecteur courant divisés par une constante
+ **/
+Vertex Vertex::operator/(const float f) {
     float x, y, z;
     x = this->x / f;
     y = this->y / f;
@@ -37,6 +52,9 @@ Vertex Vertex::operator/(float f) {
     return Vertex(x, y, z);
 }
 
+/**
+ * Normalise le vecteur courant
+ **/
 void Vertex::normer() {
     float n  = this->norme();
     this->x /= n;
@@ -44,6 +62,10 @@ void Vertex::normer() {
     this->z /= n;
 }
 
+/**
+ * Calcule la norme du vecteur courant
+ * TODO: optimiser sqrt au besoin, voir http://www.codemaestro.com/reviews/9  ?
+ **/
 float Vertex::norme() {
     return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
 }

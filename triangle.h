@@ -57,7 +57,7 @@ class Triangle {
         this->b = cb;    
     }
 
-    void appliquerTransfo(Transformation t);
+    void appliquerTransfo(const Transformation t);
 
     float distanceMoyenne() const;
     bool estAffiche();

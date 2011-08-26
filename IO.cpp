@@ -1,9 +1,10 @@
 
 #include "IO.h"
 
-#define MAX(a,b)    ((a)>(b)?(a):(b))
-#define MAX3(a,b,c) (MAX( MAX((a),(b)), (c)))
-
+/**
+ * Lit le fichier de données depuis le fichier filename. pour l'instant, le format est 
+ * non documenté (STL reformaté). A améliorer pour prendre en compte le STL
+ **/
 void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
 
     char dummy[200];
