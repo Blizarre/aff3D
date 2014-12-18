@@ -80,8 +80,8 @@ void Transformation::rotationY(const float rot) {
 void Transformation::rotationZ(const float rot) {
     float* mat = this->matrix;
     float a, b, cosR, sinR;
-    cosR = cos(rot);
-    sinR = sin(rot);
+    cosR = static_cast<float>(cos(rot));
+    sinR = static_cast<float>(sin(rot));
 
     a = mat[0];
     b = mat[1];

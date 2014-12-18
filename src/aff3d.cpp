@@ -30,6 +30,7 @@
 #include "transfo.h"
 #include "IO.h"
 #include "utils.h"
+#include "stdlib.h"
 
 using namespace std;
 
@@ -113,9 +114,9 @@ void afficherVertex(SDL_Surface *screen, Triangle t) {
 
 
 void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color, bool isWireFrame) {
-    if(isWireFrame and y > 0 and y < SCR_Y) {
-        if(xMin > 0 and xMin < SCR_X - 1) DrawPixel(screen, xMin, y, color);
-        if(xMin > 0 and xMax < SCR_X - 1) DrawPixel(screen, xMax, y, color);
+    if(isWireFrame && y > 0 && y < SCR_Y) {
+        if(xMin > 0 && xMin < SCR_X - 1) DrawPixel(screen, xMin, y, color);
+        if(xMin > 0 && xMax < SCR_X - 1) DrawPixel(screen, xMax, y, color);
     } else 
         for(int x = MAX(0, xMin-1); x < MIN(SCR_X - 1,  xMax+1); x++) // +1 et -1 pour éviter les artefacts "fil de fer"
             DrawPixel(screen, x, y, color);
@@ -125,11 +126,11 @@ void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color,
 
 void afficherTriangle(SDL_Surface *screen, Triangle t, bool isWireFrame) {
 
-    Vertex lumiere(0.5574,0.5574, 0.5574);
+    Vertex lumiere(0.5574f,0.5574f, 0.5574f);
     float light = lumiere.x * t.newState[3].x + lumiere.y * t.newState[3].y + lumiere.z * t.newState[3].z;
     light = (light > 0 ? light : 0);
 
-    Uint32 color = SDL_MapRGB(screen->format, t.r * light , t.g * light, t.b * light);
+    Uint32 color = SDL_MapRGB(screen->format, static_cast<Uint8>(t.r * light) , static_cast<Uint8>(t.g * light), static_cast<Uint8>(t.b * light));
 
     Point tP[3];
     for (int v=0; v<3;v++)
@@ -259,9 +260,9 @@ int main(int argc, char *argv[])
 
     signed char tab[100], i;
     for(i=0;i<100;i++)
-        tab[i]=random()%19-9;
+        tab[i]=rand()%19-9;
 
-    float rotX = 0.01, rotY=0.01;
+    float rotX = 0.01f, rotY=0.01f;
 
     while(!done) { 
         frameCount ++;
@@ -276,8 +277,8 @@ int main(int argc, char *argv[])
         transfo = Transformation();
         if(mouvementAuto) {
             //      transfo.translate(delta);
-            transfo.rotationX(t/6000.0);
-            transfo.rotationZ(t/50000.0);
+            transfo.rotationX(t/6000.0f);
+            transfo.rotationZ(t/50000.0f);
         } else {
             transfo.rotationX(rotX);
             transfo.rotationZ(rotY);
@@ -303,8 +304,8 @@ int main(int argc, char *argv[])
         if(SDL_PollEvent(&event)) switch(event.type) {
 
             case SDL_MOUSEMOTION:
-                rotX = rotX + event.motion.yrel/60.0;
-                rotY = rotY + event.motion.xrel/60.0;
+                rotX = rotX + event.motion.yrel/60.0f;
+                rotY = rotY + event.motion.xrel/60.0f;
                 break;
 
             case SDL_KEYDOWN:
@@ -341,4 +342,5 @@ int main(int argc, char *argv[])
     }   // End Game Loop
     //  cout <<frameCount <<" frames in "<<(SDL_GetTicks()-initTime)<<" ms., mean fps : "<< int(frameCount / ((SDL_GetTicks()-initTime)/1000.0)) <<endl;;
     SDL_Quit();
+	return 0;
 }
