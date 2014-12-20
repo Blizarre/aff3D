@@ -239,20 +239,33 @@ int main(int argc, char *argv[])
     vector<Triangle>::iterator it;
 
     bool mouvementAuto = true;
+	bool benchmarkMode = false;
 
     delta[0] = 0;
     delta[1] = 0;
     delta[2] = 0;
 
     int trCount = 0, frameCount = 0;
-    if(argc != 2) {
-        cout <<"Usage : " <<argv[0] <<" Modele" <<endl;
+    if(argc < 2) {
+        cout <<"Usage : " <<argv[0] <<" Modele /benchmark" <<endl;
         return EXIT_FAILURE;
-    } else if(!readFromFile(argv[1], vectTriangle)) {
-        cout <<"Erreur d'ouverture du fichier. Programme terminé" <<endl;
-        return EXIT_FAILURE;
-    }
+    } 
 
+	try
+	{
+		readFromFile(argv[1], vectTriangle);
+	}
+	catch (exception& e)
+	{
+		cerr << "Erreur d'ouverture du fichier. Programme terminé" << endl;
+		cerr << "Message: " << e.what();
+		return EXIT_FAILURE;
+	}
+
+	if (argc >= 3 && std::string("/benchmark") == argv[2])
+	{
+		benchmarkMode = true;
+	}
 
 
     screen = SDL_initialiser();
@@ -265,12 +278,18 @@ int main(int argc, char *argv[])
     float rotX = 0.01f, rotY=0.01f;
 
     while(!done) { 
-        frameCount ++;
-        cout <<SDL_GetTicks() - t <<"ms (" << trCount << ")"<<endl;
+		if (benchmarkMode && frameCount >= 2000) break;
+
+		Uint32 currentTime = SDL_GetTicks();
+        //cout << currentTime - t <<"ms (" << trCount << ")"<<endl;
         trCount = 0;
-        sleep = 24 - (SDL_GetTicks() - t);
-        SDL_Delay( (sleep > 0?sleep:1) );
-        t = SDL_GetTicks();
+		if (!benchmarkMode)
+		{
+			sleep = 24 - (currentTime - t);
+			SDL_Delay((sleep > 0 ? sleep : 1));
+		}
+		t = SDL_GetTicks();
+
         SDL_FillRect( screen, NULL, SDL_MapRGB(screen->format, 50, 50, 50));
         //      delta[0] = 0; //cos(t/600.0)/4.0;
         //     delta[1] = 0.2; //sin(t/600.0)/3.0;
@@ -293,7 +312,6 @@ int main(int argc, char *argv[])
                 trCount ++;
                 afficherTriangle(screen, (*it), isWireframe);
             }
-            //  afficherVertex(screen, (*it));
         }
 
         if (flouter)
@@ -301,7 +319,8 @@ int main(int argc, char *argv[])
 
         SDL_Flip(screen);
 
-        if(SDL_PollEvent(&event)) switch(event.type) {
+		// Ignore all input during benchmark... Should be kept short !
+        if(!benchmarkMode && SDL_PollEvent(&event)) switch(event.type) {
 
             case SDL_MOUSEMOTION:
                 rotX = rotX + event.motion.yrel/60.0f;
@@ -339,8 +358,11 @@ int main(int argc, char *argv[])
                 break;
         }
         while(SDL_PollEvent(&event)) { }
+		frameCount++;
+
     }   // End Game Loop
-    //  cout <<frameCount <<" frames in "<<(SDL_GetTicks()-initTime)<<" ms., mean fps : "<< int(frameCount / ((SDL_GetTicks()-initTime)/1000.0)) <<endl;;
-    SDL_Quit();
+    cout <<frameCount <<" frames in "<<(SDL_GetTicks()-initTime)<<" ms., mean fps : "<< int(frameCount / ((SDL_GetTicks()-initTime)/1000.0)) <<endl;
+    
+	SDL_Quit();
 	return 0;
 }

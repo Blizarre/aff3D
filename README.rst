@@ -27,5 +27,5 @@ Soon :
 * bump-mapping
 
 
-
+Benchmark with "original "C with class" version, rendering of 2000 frames (average of 4 run) : 844fps
 

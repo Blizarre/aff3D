@@ -1,6 +1,7 @@
 
 #include "IO.h"
 #include <fstream>
+#include <array>
 
 void readTriangles(string& fileName, vector<Triangle> & vectTriangle)
 {
@@ -8,8 +9,12 @@ void readTriangles(string& fileName, vector<Triangle> & vectTriangle)
 	ifstream dataFile(fileName);
 	float x, y, z;
 
-	Vertex v[4], v2[4];
+	std::array<Vertex, 4> v, vMirror;
+
 	int nbLu = 0;
+
+	if (!dataFile)
+		throw exception("Error opening the file");
 
 	while (!dataFile.eof()) {
 		for (int i = 0; i<4; i++) { // normale du triangle, puis points 1, 2, 3 du triangle
@@ -19,28 +24,22 @@ void readTriangles(string& fileName, vector<Triangle> & vectTriangle)
 				throw exception("Error reading data from file");
 			}
 			v[i] = Vertex(x, y, z);
-			v2[i] = Vertex(x, y, -z); // -z car le fichier ne contient qu'une moitiée de théière. v2 représente l'autre moitiée
+			vMirror[i] = Vertex(x, y, -z); // -z car le fichier ne contient qu'une moitiée de théière. v2 représente l'autre moitiée
 		}
 		v[0].normer();
-		v2[0].normer();
+		vMirror[0].normer();
 		vectTriangle.push_back(Triangle(v[1], v[2], v[3], v[0], 0, 0, 255));       // point 1, 2, 3, puis normale
-		vectTriangle.push_back(Triangle(v2[1], v2[2], v2[3], v2[0], 0, 0, 255));
+		vectTriangle.push_back(Triangle(vMirror[1], vMirror[2], vMirror[3], vMirror[0], 0, 0, 255));
 	}
 }
 
 /**
  * Lit le fichier de données depuis le fichier filename. pour l'instant, le format est 
  * non documenté (STL reformaté). A améliorer pour prendre en compte le STL et les erreurs.
- * Renvoie vrai si le fichier est lu. 
  **/
-bool readFromFile(string fileName, vector<Triangle> & vectTriangle) {
-    
-
-    
-    
+void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
 	readTriangles(fileName, vectTriangle);
 
-    
     cout << "scaling model" <<endl;
 
     float minX = 100000, maxX = -100000, minY = 100000, maxY = -100000, minZ = 100000, maxZ = -100000;
@@ -73,6 +72,4 @@ bool readFromFile(string fileName, vector<Triangle> & vectTriangle) {
     }
     
     cout <<"Triangles lu : " <<vectTriangle.size() <<endl;
-
-    return true;
 }
