@@ -3,15 +3,13 @@
 #include <fstream>
 #include <array>
 
-void readTriangles(string& fileName, vector<Triangle> & vectTriangle)
+void readTriangles(const string& fileName, vector<Triangle> & vectTriangle)
 {
 	// TODO: fd not released in case of exception, use RAII
 	ifstream dataFile(fileName);
 	float x, y, z;
 
 	std::array<Vertex, 4> v, vMirror;
-
-	int nbLu = 0;
 
 	if (!dataFile)
 		throw exception("Error opening the file");
@@ -37,7 +35,7 @@ void readTriangles(string& fileName, vector<Triangle> & vectTriangle)
  * Lit le fichier de données depuis le fichier filename. pour l'instant, le format est 
  * non documenté (STL reformaté). A améliorer pour prendre en compte le STL et les erreurs.
  **/
-void readFromFile(string fileName, vector<Triangle> & vectTriangle) {
+void readFromFile(const string& fileName, vector<Triangle> & vectTriangle) {
 	readTriangles(fileName, vectTriangle);
 
     cout << "scaling model" <<endl;
