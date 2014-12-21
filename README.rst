@@ -28,5 +28,5 @@ Soon :
 
 
 Benchmark with "original "C with class" version, rendering of 2000 frames (core i5, VC120 Release mode, average of 4 run) : 844fps
-Current version: 860 fps (improvement: some arguments in critical function are now passed by reference instead of by value)
+Current version: 792 fps (loss of performancemay be due to the )
 

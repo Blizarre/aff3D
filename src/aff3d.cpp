@@ -21,7 +21,9 @@
 #include <math.h>
 #include <iostream>
 #include <stdlib.h>
-#include "SDL.h"
+#include "SDLWrapper.h"
+#include "SurfaceWrapper.h"
+
 #include<vector>
 #include <algorithm>
 
@@ -34,25 +36,8 @@
 
 using namespace std;
 
-#define SCR_X 640
-#define SCR_Y 640
-
-
-void DrawPixel(SDL_Surface *screen, int x, int y,Uint32 color)
-{
-    Uint32 *bufp;
-
-    bufp = (Uint32 *)screen->pixels + y*screen->pitch/4 + x;
-    *bufp = color;
-}
-
-Uint32 GetPixel(SDL_Surface *screen, int x, int y)
-{
-    Uint32 *bufp;
-
-    bufp = (Uint32 *)screen->pixels + y*screen->pitch/4 + x;
-    return *bufp;
-}
+const Uint32 screenWidth = 640;
+const Uint32 screenHeight = 640;
 
 typedef struct _Point {
     int x, y;
@@ -66,13 +51,13 @@ typedef struct _Point {
  Pour Z, +2 pour être certain qu'on sera devant.
  **/
 void projeter(const Vertex & i, Point & pt) {
-    pt.x = (int)((i.x + 0.5) * SCR_X);
-    pt.y = (int)((i.y + 0.5) * SCR_Y); 
+    pt.x = (int)((i.x + 0.5) * screenWidth);
+    pt.y = (int)((i.y + 0.5) * screenHeight);
     pt.z = (float)(i.z + 2.0);
 }
 
 
-void trierInPlace(Point pt[]) {
+void sortInPlace(Point pt[]) {
     Point tmp;
     if(pt[1].y < pt[0].y) {
         tmp = pt[0];
@@ -94,130 +79,153 @@ void trierInPlace(Point pt[]) {
 }
 
 
-void afficherVertex(SDL_Surface *screen, const Triangle & t) {
+void drawVertex(SurfaceWrapper & surface, const Triangle & t) {
     Point tP[3];
     for (int v=0; v<3;v++)
         projeter(t.points[v], tP[v]);
 
-    trierInPlace(tP);
+    sortInPlace(tP);
 
-    Uint32 color[] = { SDL_MapRGB(screen->format, 255, 255, 0), SDL_MapRGB(screen->format, 255, 0, 255), SDL_MapRGB(screen->format, 0, 255, 255)};
+    std::array<Uint32, 3> color = { surface.getColor(255, 255, 0), surface.getColor(255, 0, 255), surface.getColor(0, 255, 255) };
 
     for(int i=0; i< 3; i++) {
-        DrawPixel(screen, tP[i].x-1, tP[i].y, color[i]);
-        DrawPixel(screen, tP[i].x+1, tP[i].y, color[i]);
-        DrawPixel(screen, tP[i].x, tP[i].y-1, color[i]);
-        DrawPixel(screen, tP[i].x, tP[i].y+1, color[i]);
-        DrawPixel(screen, tP[i].x, tP[i].y, color[i]);        
+        surface.DrawPixel(tP[i].x - 1, tP[i].y, color[i]);
+        surface.DrawPixel(tP[i].x + 1, tP[i].y, color[i]);
+        surface.DrawPixel(tP[i].x, tP[i].y - 1, color[i]);
+        surface.DrawPixel(tP[i].x, tP[i].y + 1, color[i]);
+        surface.DrawPixel(tP[i].x, tP[i].y, color[i]);
+    }
+}
+
+inline void sortAndTrim(int & val1, int & val2)
+{
+    if (val2 < val1)
+    {
+        int tmp = val1;
+        val1 = val2;
+        val2 = tmp;
+    }
+
+    val1--;
+    val2++;
+
+    if (val1 < 0)
+        val1 = 0;
+    else if (val1 >= screenWidth)
+        val1 = screenWidth - 1;
+
+    if (val2 < 0)
+        val2 = 0;
+    else if (val2 >= screenWidth)
+        val2 = screenWidth - 1;
+}
+
+bool isInRangeY(int y) { return y > 0 && y < screenHeight - 1; }
+bool isInRangeX(int x) { return x > 0 && x < screenWidth - 1; }
+
+void drawLine(SurfaceWrapper & surface, int x1, int x2, int y, Uint32 color, bool isWireFrame)
+{
+    if (isInRangeY(y))
+    {
+        if (isWireFrame)
+        {
+            surface.DrawPixel(x1, y, color);
+            surface.DrawPixel(x2, y, color);
+        }
+        else
+        {
+            sortAndTrim(x1, x2);
+            for (int x = x1; x < x2; x++) // +1 et -1 pour éviter les artefacts "fil de fer"
+                surface.DrawPixel(x, y, color);
+        }
     }
 }
 
 
-void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color, bool isWireFrame) {
-    if(isWireFrame && y > 0 && y < SCR_Y) {
-        if(xMin > 0 && xMin < SCR_X - 1) DrawPixel(screen, xMin, y, color);
-        if(xMin > 0 && xMax < SCR_X - 1) DrawPixel(screen, xMax, y, color);
-    } else 
-        for(int x = MAX(0, xMin-1); x < MIN(SCR_X - 1,  xMax+1); x++) // +1 et -1 pour éviter les artefacts "fil de fer"
-            DrawPixel(screen, x, y, color);
-}
+/**
+ * A triangle is draw in several steps: 
+ * - first, the Vertex are projected on the screen space.
+ * - then, they are ordered by height.
+ * - the first half of the triangle is drawn (top point to the middle point)
+ * - and finally the bottom part of the triangle is drawn
+ **/
+void drawTriangle(SurfaceWrapper & surface, const Triangle & t, bool isWireFrame) {
+    // TODO: bring it in Triangle or on a specialized drawing class, code reuse between the two halves
+    Vertex lightPoint(0.5574f,0.5574f, 0.5574f);
+    float lightCoeff = lightPoint.x * t.points[3].x + lightPoint.y * t.points[3].y + lightPoint.z * t.points[3].z;
+    lightCoeff = (lightCoeff > 0 ? lightCoeff : 0);
 
-
-
-void afficherTriangle(SDL_Surface *screen, const Triangle & t, bool isWireFrame) {
-
-    Vertex lumiere(0.5574f,0.5574f, 0.5574f);
-    float light = lumiere.x * t.points[3].x + lumiere.y * t.points[3].y + lumiere.z * t.points[3].z;
-    light = (light > 0 ? light : 0);
-
-    Uint32 color = SDL_MapRGB(screen->format, static_cast<Uint8>(t.r * light) , static_cast<Uint8>(t.g * light), static_cast<Uint8>(t.b * light));
+    Uint32 color = surface.getColor(static_cast<Uint8>(t.r * lightCoeff), static_cast<Uint8>(t.g * lightCoeff), static_cast<Uint8>(t.b * lightCoeff));
 
     Point tP[3];
     for (int v=0; v<3;v++)
         projeter(t.points[v], tP[v]);
 
-    trierInPlace(tP);
+    sortInPlace(tP);
 
     int x1, x2;
     float a1, a2;
-
-    int yP = 0;
-    if(tP[0].y == tP[1].y && tP[0].y > 0 && tP[0].y < SCR_Y-1) {
-        if(tP[0].x < tP[1].x)
-            dessinerLigne(screen, tP[0].x, tP[1].x, tP[0].y, color, isWireFrame);
-        else
-            dessinerLigne(screen, tP[1].x, tP[0].x, tP[0].y, color, isWireFrame);
-    } else {
-        a1 = (tP[1].x - tP[0].x)/((float)tP[1].y - tP[0].y);
-        a2 = (tP[2].x - tP[0].x)/((float)tP[2].y - tP[0].y);
+    int yP;
 
 
-        for(int y=MAX(0,tP[0].y); y<=MIN(tP[1].y,SCR_X-1); y++) {
-            x1 = (int)(a1 * yP);
-            x2 = (int)(a2 * yP);
+    if (tP[2].y > 0)
+    {
+        yP = 0;
+        if (tP[0].y == tP[2].y && tP[0].y > 0 && tP[0].y < screenHeight - 1) {
+            drawLine(surface, tP[0].x, tP[2].x, tP[0].y, color, isWireFrame);
+        }
+        else {
+            a1 = (tP[0].x - tP[2].x) / ((float)tP[0].y - tP[2].y);
+            a2 = (tP[1].x - tP[2].x) / ((float)tP[1].y - tP[2].y);
+            for (int y = tP[2].y; y > tP[1].y; y--) {
+                x1 = (int)(-a1 * yP);
+                x2 = (int)(-a2 * yP);
 
-            if(x1 < x2 )  dessinerLigne(screen, x1 + tP[0].x, x2 + tP[0].x, y, color, isWireFrame);
-            else          dessinerLigne(screen, x2 + tP[0].x, x1 + tP[0].x, y, color, isWireFrame);            
+                drawLine(surface, x1 + tP[2].x, x2 + tP[2].x, y, color, isWireFrame);
+                yP++;
+            }
+        }
+    }
+    else // if this point's height is < 0, then it will be the same for all the others
+    {
+        return;
+    }
 
-            yP ++;
+    if (tP[1].y > 0)
+    {
+        yP = 0;
+        if (tP[0].y == tP[1].y && tP[0].y > 0 && tP[0].y < screenHeight - 1) {
+            drawLine(surface, tP[0].x, tP[1].x, tP[0].y, color, isWireFrame);
+        }
+        else {
+            a1 = (tP[1].x - tP[0].x) / ((float)tP[1].y - tP[0].y);
+            a2 = (tP[2].x - tP[0].x) / ((float)tP[2].y - tP[0].y);
+
+
+            for (int y = tP[0].y; y <= tP[1].y; y++) {
+                x1 = (int)(a1 * yP);
+                x2 = (int)(a2 * yP);
+
+                drawLine(surface, x1 + tP[0].x, x2 + tP[0].x, y, color, isWireFrame);
+                yP++;
+            }
         }
     }
 
-    yP = 0; 
-    if(tP[0].y == tP[2].y && tP[0].y > 0 && tP[0].y < SCR_Y-1) {
-        if(tP[0].x < tP[2].x)
-            dessinerLigne(screen, tP[0].x, tP[2].x, tP[0].y, color, isWireFrame);
-        else
-            dessinerLigne(screen, tP[2].x, tP[0].x, tP[0].y, color, isWireFrame);
-    } else {
-        a1 = (tP[0].x - tP[2].x)/((float)tP[0].y - tP[2].y);
-        a2 = (tP[1].x - tP[2].x)/((float)tP[1].y - tP[2].y);
-        for(int y = MIN(SCR_Y-1, tP[2].y); y > MAX(0, tP[1].y); y--) {
-            x1 = (int)(- a1 * yP);
-            x2 = (int)(- a2 * yP);
 
-            if( x1 < x2 ) dessinerLigne(screen, x1 + tP[2].x, x2 + tP[2].x, y, color, isWireFrame);
-            else          dessinerLigne(screen, x2 + tP[2].x, x1 + tP[2].x, y, color, isWireFrame);            
-
-            yP ++;
-        }
-    }
 }
 
-/*
- * Initialiser SDL : renvoie la surface principale
- **/
-SDL_Surface* SDL_initialiser() {
-    SDL_Surface * screen;
 
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)< 0) {
-        cout <<"Could not initialize SDL:" << SDL_GetError() << endl;
-        SDL_Quit();
-    } else {
-        cout << "Audio & Video initialized correctly" << endl;
-    }
 
-    screen = SDL_SetVideoMode(SCR_X, SCR_Y, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
-    if ( screen == NULL ) {
-        cerr << "SetVideoMode to "<<SCR_X << "x" << SCR_Y <<" FAILED : " << SDL_GetError() <<endl;
-        SDL_Quit();
-    }
-
-    cout << "SDL initialization OK" <<endl;
-
-    return screen;
-}
-
-void flouterEcran(SDL_Surface* screen, signed char* tabRandom) {
+void flouterEcran(SurfaceWrapper & surface, std::array<signed char, 100> tabRandom) {
     int x, y, color;
-    SDL_Surface* screenTEMP = SDL_ConvertSurface(screen, screen->format, SDL_SWSURFACE); // copie de la surface pour éviter de propager les diffusions
+    SurfaceWrapper temporary = surface; // copie de la surface pour éviter de propager les diffusions
 
-    for(x=10;x<SCR_X-10; x++)
-        for(y=10;y<SCR_Y-10; y++) {
-            color =  GetPixel(screenTEMP, x+tabRandom[x*y%100], y+tabRandom[x*y%100]);
-            DrawPixel(screen, x, y, color);
-        }
-
+    for (x = 10; x<screenWidth - 10; x++)
+    for (y = 10; y < screenHeight - 10; y++) {
+        color = temporary.GetPixel(x + tabRandom[x*y % 100], y + tabRandom[x*y % 100]);
+        surface.DrawPixel(x, y, color);
+    }
 }
 
 bool trierTriangle(const Triangle& d1, const Triangle& d2)
@@ -227,18 +235,17 @@ bool trierTriangle(const Triangle& d1, const Triangle& d2)
 
 int main(int argc, char *argv[])
 {
-    SDL_Surface *screen;
     vector<Triangle> vectTriangle;
     Transformation transfo;
     float delta[3];
-    SDL_Event event;
-    int done = 0;
+
+    bool shouldQuit = false;
     unsigned int t=0, initTime = 0;
     int sleep;
-    bool flouter = false, isWireframe = false, backfaceC=false;
+    bool scrambleImage = false, isWireframe = false, backfaceC = false;
     vector<Triangle>::iterator it;
 
-    bool mouvementAuto = true;
+    bool autoAnimate = true;
 	bool benchmarkMode = false;
 
     delta[0] = 0;
@@ -267,20 +274,38 @@ int main(int argc, char *argv[])
 		benchmarkMode = true;
 	}
 
+    SDLWrapper sdl(screenWidth, screenHeight);
+    SurfaceWrapper& screen = sdl.getMainScreen();
 
-    screen = SDL_initialiser();
-    initTime = SDL_GetTicks();
+    initTime = sdl.getTicks();
 
-    signed char tab[100], i;
-    for(i=0;i<100;i++)
-        tab[i]=rand()%19-9;
+    // this array of 100 pseudo-random values is used to speed up computations when the quality of the randomness
+    // is not important. no need to call rand every time.
+    // TODO: extract to his own object
+    std::array<signed char, 100> tab;
+    for (auto & val: tab)
+        val=rand()%19-9; // between -9 and 9
 
     float rotX = 0.01f, rotY=0.01f;
 
-    while(!done) { 
+    sdl.onMouseMotion([&rotX, &rotY](size_t x, size_t y) { rotX = y / 100.0f; rotY = x / 100.0f; });
+    sdl.onQuitEvent([&shouldQuit]() {shouldQuit = true; } );
+    sdl.onKeyPress(SDLK_ESCAPE, [&shouldQuit]() { shouldQuit = !shouldQuit; });
+    sdl.onKeyPress(SDLK_f, [&scrambleImage]() { scrambleImage = !scrambleImage; });
+    sdl.onKeyPress(SDLK_w, [&isWireframe]() { 
+        isWireframe = !isWireframe;
+    });
+    sdl.onKeyPress(SDLK_b, [&backfaceC]() { 
+        backfaceC = !backfaceC; 
+    });
+    sdl.onKeyPress(SDLK_q, [&autoAnimate]() { 
+        autoAnimate = !autoAnimate;
+    });
+
+    while(!shouldQuit) { 
 		if (benchmarkMode && frameCount >= 2000) break;
 
-		Uint32 currentTime = SDL_GetTicks();
+		Uint32 currentTime = sdl.getTicks();
         //cout << currentTime - t <<"ms (" << drawnTriangleCount << ")"<<endl;
         drawnTriangleCount = 0;
 		if (!benchmarkMode)
@@ -288,13 +313,14 @@ int main(int argc, char *argv[])
 			sleep = 24 - (currentTime - t);
 			SDL_Delay((sleep > 0 ? sleep : 1));
 		}
-		t = SDL_GetTicks();
+		t = sdl.getTicks();
 
-        SDL_FillRect( screen, NULL, SDL_MapRGB(screen->format, 50, 50, 50));
-        //      delta[0] = 0; //cos(t/600.0)/4.0;
+        screen.fill(50, 50, 50);
+
+        //     delta[0] =   0; //cos(t/600.0)/4.0;
         //     delta[1] = 0.2; //sin(t/600.0)/3.0;
         transfo = Transformation();
-        if(mouvementAuto) {
+        if(autoAnimate) {
             //      transfo.translate(delta);
             transfo.rotationX(t/6000.0f);
             transfo.rotationZ(t/50000.0f);
@@ -312,59 +338,23 @@ int main(int argc, char *argv[])
         for(Triangle& tr : vectTriangle) {
             if(backfaceC || tr.isFacingCamera()) { 
                 drawnTriangleCount ++;
-                afficherTriangle(screen, tr, isWireframe);
+                drawTriangle(screen, tr, isWireframe);
             }
         }
 
-        if (flouter)
+        if (scrambleImage)
             flouterEcran(screen, tab);
 
-        SDL_Flip(screen);
+        sdl.flipBuffer();
 
 		// Ignore all input during benchmark... Should be kept short !
-        if(!benchmarkMode && SDL_PollEvent(&event)) switch(event.type) {
+        if (!benchmarkMode)
+            sdl.processEvents();
 
-            case SDL_MOUSEMOTION:
-                rotX = rotX + event.motion.yrel/60.0f;
-                rotY = rotY + event.motion.xrel/60.0f;
-                break;
-
-            case SDL_KEYDOWN:
-                cout << "scancode " << (int)(event.key.keysym.scancode) <<" unicode " << event.key.keysym.unicode <<endl;
-                if( (int)(event.key.keysym.scancode) == 41) {// 'F'
-                    flouter = !flouter;
-                    break;
-                }
-
-                if( (int)(event.key.keysym.scancode) == 52) {// 'w'
-                    isWireframe = !isWireframe;
-                    break;
-                }
-
-                if( (int)(event.key.keysym.scancode) == 56) {// 'b'
-                    backfaceC = !backfaceC;
-                    break;
-                }
-
-                if( (int)(event.key.keysym.scancode) == 24) {// 'A' ... en azerty
-                    mouvementAuto = !mouvementAuto;
-                    break;
-                }
-
-                if(event.key.keysym.sym == SDLK_ESCAPE)
-                    done=true;
-                break;
-
-            case SDL_QUIT:
-                done = true;
-                break;
-        }
-        while(SDL_PollEvent(&event)) { }
 		frameCount++;
 
     }   // End Game Loop
-    cout <<frameCount <<" frames in "<<(SDL_GetTicks()-initTime)<<" ms., mean fps : "<< int(frameCount / ((SDL_GetTicks()-initTime)/1000.0)) <<endl;
+    cout <<frameCount <<" frames in "<<(sdl.getTicks()-initTime)<<" ms., mean fps : "<< int(frameCount / ((sdl.getTicks()-initTime)/1000.0)) <<endl;
     
-	SDL_Quit();
 	return 0;
 }
