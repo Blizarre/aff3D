@@ -65,8 +65,8 @@ typedef struct _Point {
  qui a par convention un champ de vue de 1 unité en X et 1 unité en Y.
  Pour Z, +2 pour être certain qu'on sera devant.
  **/
-void projeter(Vertex i, Point & pt) {
-    pt.x = (int)((i.x + 0.5)*SCR_X);
+void projeter(const Vertex & i, Point & pt) {
+    pt.x = (int)((i.x + 0.5) * SCR_X);
     pt.y = (int)((i.y + 0.5) * SCR_Y); 
     pt.z = (float)(i.z + 2.0);
 }
@@ -94,10 +94,10 @@ void trierInPlace(Point pt[]) {
 }
 
 
-void afficherVertex(SDL_Surface *screen, Triangle t) {
+void afficherVertex(SDL_Surface *screen, const Triangle & t) {
     Point tP[3];
     for (int v=0; v<3;v++)
-        projeter(t.newState[v], tP[v]);
+        projeter(t.points[v], tP[v]);
 
     trierInPlace(tP);
 
@@ -124,17 +124,17 @@ void dessinerLigne(SDL_Surface *screen, int xMin, int xMax, int y, Uint32 color,
 
 
 
-void afficherTriangle(SDL_Surface *screen, Triangle t, bool isWireFrame) {
+void afficherTriangle(SDL_Surface *screen, const Triangle & t, bool isWireFrame) {
 
     Vertex lumiere(0.5574f,0.5574f, 0.5574f);
-    float light = lumiere.x * t.newState[3].x + lumiere.y * t.newState[3].y + lumiere.z * t.newState[3].z;
+    float light = lumiere.x * t.points[3].x + lumiere.y * t.points[3].y + lumiere.z * t.points[3].z;
     light = (light > 0 ? light : 0);
 
     Uint32 color = SDL_MapRGB(screen->format, static_cast<Uint8>(t.r * light) , static_cast<Uint8>(t.g * light), static_cast<Uint8>(t.b * light));
 
     Point tP[3];
     for (int v=0; v<3;v++)
-        projeter(t.newState[v], tP[v]);
+        projeter(t.points[v], tP[v]);
 
     trierInPlace(tP);
 
@@ -190,7 +190,6 @@ void afficherTriangle(SDL_Surface *screen, Triangle t, bool isWireFrame) {
 SDL_Surface* SDL_initialiser() {
     SDL_Surface * screen;
 
-    cout <<"Initializing SDL." << endl;
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)< 0) {
         cout <<"Could not initialize SDL:" << SDL_GetError() << endl;
         SDL_Quit();
@@ -200,10 +199,11 @@ SDL_Surface* SDL_initialiser() {
 
     screen = SDL_SetVideoMode(SCR_X, SCR_Y, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
     if ( screen == NULL ) {
-        cerr << "Impossible de passer en "<<SCR_X << "x" << SCR_Y <<" : " << SDL_GetError() <<endl;
+        cerr << "SetVideoMode to "<<SCR_X << "x" << SCR_Y <<" FAILED : " << SDL_GetError() <<endl;
         SDL_Quit();
     }
-    cout << "initialisation terminée" <<endl;
+
+    cout << "SDL initialization OK" <<endl;
 
     return screen;
 }
@@ -222,7 +222,7 @@ void flouterEcran(SDL_Surface* screen, signed char* tabRandom) {
 
 bool trierTriangle(const Triangle& d1, const Triangle& d2)
 {
-    return d1.distanceMoyenne() < d2.distanceMoyenne();
+    return d1.sumOfDistances() < d2.sumOfDistances();
 }
 
 int main(int argc, char *argv[])
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
     delta[1] = 0;
     delta[2] = 0;
 
-    int trCount = 0, frameCount = 0;
+    int drawnTriangleCount = 0, frameCount = 0;
     if(argc < 2) {
         cout <<"Usage : " <<argv[0] <<" Modele /benchmark" <<endl;
         return EXIT_FAILURE;
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
 	}
 	catch (exception& e)
 	{
-		cerr << "Erreur d'ouverture du fichier. Programme terminé" << endl;
+		cerr << "Couldn't read data from file" << endl;
 		cerr << "Message: " << e.what();
 		return EXIT_FAILURE;
 	}
@@ -281,8 +281,8 @@ int main(int argc, char *argv[])
 		if (benchmarkMode && frameCount >= 2000) break;
 
 		Uint32 currentTime = SDL_GetTicks();
-        //cout << currentTime - t <<"ms (" << trCount << ")"<<endl;
-        trCount = 0;
+        //cout << currentTime - t <<"ms (" << drawnTriangleCount << ")"<<endl;
+        drawnTriangleCount = 0;
 		if (!benchmarkMode)
 		{
 			sleep = 24 - (currentTime - t);
@@ -303,14 +303,16 @@ int main(int argc, char *argv[])
             transfo.rotationZ(rotY);
         }
 
-        for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
-            it->appliquerTransfo(transfo);
-        }
+		for (Triangle& tr : vectTriangle)
+		{
+			tr.applyTransformation(transfo);
+		}
+
         std::sort(vectTriangle.begin(), vectTriangle.end(), trierTriangle );
-        for(it = vectTriangle.begin(); it != vectTriangle.end(); it++) {
-            if(backfaceC || it->estAffiche()) { 
-                trCount ++;
-                afficherTriangle(screen, (*it), isWireframe);
+        for(Triangle& tr : vectTriangle) {
+            if(backfaceC || tr.isFacingCamera()) { 
+                drawnTriangleCount ++;
+                afficherTriangle(screen, tr, isWireframe);
             }
         }
 

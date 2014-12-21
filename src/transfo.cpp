@@ -3,10 +3,9 @@
 
 
 void Transformation::translate(const float delta[3]) {
-    float* mat = this->matrix;
-    mat[3]  += mat[0] * delta[0] + mat[1] * delta[1] + mat[2] * delta[2];
-    mat[7]  += mat[4] * delta[0] + mat[5] * delta[1] + mat[6] * delta[2];
-    mat[11] += mat[8] * delta[0] + mat[9] * delta[1] + mat[10] * delta[2];
+    this->m_matrix[3]  += m_matrix[0] * delta[0] + m_matrix[1] * delta[1] + m_matrix[2] * delta[2];
+    m_matrix[7]  += m_matrix[4] * delta[0] + m_matrix[5] * delta[1] + m_matrix[6] * delta[2];
+    m_matrix[11] += m_matrix[8] * delta[0] + m_matrix[9] * delta[1] + m_matrix[10] * delta[2];
 }
 
 /**
@@ -22,25 +21,24 @@ void Transformation::translate(const float delta[3]) {
  * 0    sinT    cosT
  * */
 void Transformation::rotationX(const float rot) {
-    float* mat = this->matrix;
     float a, b, cosR, sinR;
     cosR = cos(rot);
     sinR = sin(rot);
 
-    a = mat[1];
-    b = mat[2];
-    mat[1] = a*cosR - b*sinR;
-    mat[2] = a*sinR + b*cosR;
+    a = m_matrix[1];
+    b = m_matrix[2];
+    m_matrix[1] = a*cosR - b*sinR;
+    m_matrix[2] = a*sinR + b*cosR;
 
-    a = mat[5];
-    b = mat[6];
-    mat[5] = a*cosR - b*sinR;
-    mat[6] = a*sinR + b*cosR;
+    a = m_matrix[5];
+    b = m_matrix[6];
+    m_matrix[5] = a*cosR - b*sinR;
+    m_matrix[6] = a*sinR + b*cosR;
 
-    a = mat[9];
-    b = mat[10];
-    mat[9] = a*cosR - b*sinR;
-    mat[10] = a*sinR + b*cosR;
+    a = m_matrix[9];
+    b = m_matrix[10];
+    m_matrix[9] = a*cosR - b*sinR;
+    m_matrix[10] = a*sinR + b*cosR;
 }
 
 /**
@@ -50,25 +48,24 @@ void Transformation::rotationX(const float rot) {
  *  TODO:broken, surtout pour la normale. A verifier
  * */
 void Transformation::rotationY(const float rot) {
-    float* mat = this->matrix;
     float a, b, cosR, sinR;
     cosR = cos(rot);
     sinR = sin(rot);
 
-    a = mat[0];
-    b = mat[2];
-    mat[0] = a*cosR + b*sinR;
-    mat[2] = -a*sinR + b*cosR;
+    a = m_matrix[0];
+    b = m_matrix[2];
+    m_matrix[0] = a*cosR + b*sinR;
+    m_matrix[2] = -a*sinR + b*cosR;
 
-    a = mat[4];
-    b = mat[6];
-    mat[4] = a*cosR + b*sinR;
-    mat[6] = -a*sinR + b*cosR;
+    a = m_matrix[4];
+    b = m_matrix[6];
+    m_matrix[4] = a*cosR + b*sinR;
+    m_matrix[6] = -a*sinR + b*cosR;
 
-    a = mat[8];
-    b = mat[10];
-    mat[8] = a*cosR - b*sinR;
-    mat[10] = -a*sinR + b*cosR;
+    a = m_matrix[8];
+    b = m_matrix[10];
+    m_matrix[8] = a*cosR - b*sinR;
+    m_matrix[10] = -a*sinR + b*cosR;
 }
 
 
@@ -78,24 +75,40 @@ void Transformation::rotationY(const float rot) {
  * 0     0     1
  * */
 void Transformation::rotationZ(const float rot) {
-    float* mat = this->matrix;
     float a, b, cosR, sinR;
     cosR = static_cast<float>(cos(rot));
     sinR = static_cast<float>(sin(rot));
 
-    a = mat[0];
-    b = mat[1];
-    mat[0] = a*cos(rot) - b*sin(rot);
-    mat[1] = a*sin(rot) + b*cos(rot);
+    a = m_matrix[0];
+    b = m_matrix[1];
+    m_matrix[0] = a*cos(rot) - b*sin(rot);
+    m_matrix[1] = a*sin(rot) + b*cos(rot);
 
-    a = mat[4];
-    b = mat[5];
-    mat[4] = a*cos(rot) - b*sin(rot);
-    mat[5] = a*sin(rot) + b*cos(rot);
+    a = m_matrix[4];
+    b = m_matrix[5];
+    m_matrix[4] = a*cos(rot) - b*sin(rot);
+    m_matrix[5] = a*sin(rot) + b*cos(rot);
 
-    a = mat[8];
-    b = mat[9];
-    mat[8] = a*cos(rot) - b*sin(rot);
-    mat[9] = a*sin(rot) + b*cos(rot);
+    a = m_matrix[8];
+    b = m_matrix[9];
+    m_matrix[8] = a*cos(rot) - b*sin(rot);
+    m_matrix[9] = a*sin(rot) + b*cos(rot);
+}
+
+Vertex Transformation::applyTo(const Vertex & v) const
+{
+	float nx, ny, nz;
+
+	nx = v.x * m_matrix[0] + v.y * m_matrix[1] + v.z * m_matrix[2] + m_matrix[3];
+	ny = v.x * m_matrix[4] + v.y * m_matrix[5] + v.z * m_matrix[6] + m_matrix[7];
+	nz = v.x * m_matrix[8] + v.y * m_matrix[9] + v.z * m_matrix[10] + m_matrix[11];
+	return Vertex(nx, ny, nz);
+}
+
+void Transformation::applyTo(const Vertex & vIn, Vertex & vOut) const
+{
+	vOut.x = vIn.x * m_matrix[0] + vIn.y * m_matrix[1] + vIn.z * m_matrix[2] + m_matrix[3];
+	vOut.y = vIn.x * m_matrix[4] + vIn.y * m_matrix[5] + vIn.z * m_matrix[6] + m_matrix[7];
+	vOut.z = vIn.x * m_matrix[8] + vIn.y * m_matrix[9] + vIn.z * m_matrix[10] + m_matrix[11];
 }
 

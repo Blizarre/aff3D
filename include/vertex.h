@@ -23,7 +23,6 @@
 
 #define __VERTEX_V__1325465
 
-#include "transfo.h"
 #include <cmath>
 
 class Vertex {
@@ -41,9 +40,6 @@ class Vertex {
     Vertex operator*(const Vertex v);
     Vertex operator-(const Vertex v);
     Vertex operator/(const float f);
-
-    
-    Vertex appliquerTransfo(const Transformation t);
     
     float norme();
     void normer();

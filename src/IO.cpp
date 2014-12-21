@@ -57,16 +57,22 @@ void readFromFile(const string& fileName, vector<Triangle> & vectTriangle) {
     float coeffEchelle = MAX3(maxX-minX, maxY-minY, maxZ-minZ);
     
     for(auto& tr : vectTriangle) {
+        // Make sure that the rawData of the Triangle is re-initialized with the correct values.
+        // TODO: refactor this part of the code from scratch and implement a proper normalization/data loading code
+        std::array<Vertex, 4> data = tr.points;
         for(numVert = 0; numVert < 3; numVert ++) {
-            tr.points[numVert].x -= (maxX - minX)/2.0f;
-            tr.points[numVert].y -= (maxY - minY)/2.0f;
-            tr.points[numVert].z -= (maxZ - minZ)/2.0f;
+            data[numVert].x -= (maxX - minX) / 2.0f;
+            data[numVert].y -= (maxY - minY) / 2.0f;
+            data[numVert].z -= (maxZ - minZ) / 2.0f;
             
-            tr.points[numVert].x /= coeffEchelle;
-            tr.points[numVert].y /= -coeffEchelle; // le "-" permer d'avoir la théière dans le bon sens (couvercle vers le haut)
-            tr.points[numVert].z /= coeffEchelle;
+            data[numVert].x /= coeffEchelle;
+            data[numVert].y /= -coeffEchelle; // the "-" will revert the teapot upside-down
+            data[numVert].z /= coeffEchelle;
         }
-        tr.points[3].y = - tr.points[3].y; // De même avec la normale
+        data[3] = tr.points[3];
+        data[3].y = -tr.points[3].y; // revert the normal also since the y component has been reverted
+
+        tr.setRawData(data);
     }
     
     cout <<"Triangles lu : " <<vectTriangle.size() <<endl;
