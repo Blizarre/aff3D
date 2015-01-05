@@ -75,5 +75,5 @@ void readFromFile(const string& fileName, vector<Triangle> & vectTriangle) {
         tr.setRawData(data);
     }
     
-    cout <<"Triangles lu : " <<vectTriangle.size() <<endl;
+    cout <<"Triangles : " <<vectTriangle.size() <<endl;
 }

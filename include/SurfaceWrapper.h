@@ -25,63 +25,82 @@
 
 #include <SDL.h>
 
+/* 
+   This class is a Wrapper implementing RAII for the SDL_Surface pointer. 
+   A copy of the class will make a copy of the Surface.
+*/
 class SurfaceWrapper
 {
 public:
 
-    SurfaceWrapper()
-    {
-        m_SDLSurface = nullptr;
-    }
+	SurfaceWrapper()
+	{
+		m_SDLSurface = nullptr;
+	}
 
-    SurfaceWrapper(SDL_Surface * const surface)
-    {
-        m_SDLSurface = surface;
-    }
+	SurfaceWrapper(SDL_Surface * const surface)
+	{
+		m_SDLSurface = surface;
+	}
 
-    /* TODO: and what about assign copy operator? */
-    SurfaceWrapper(const SurfaceWrapper & other)
-    {
-        m_SDLSurface = SDL_ConvertSurface(other.m_SDLSurface, other.m_SDLSurface->format, SDL_SWSURFACE);
-    }
+	inline int getWidth() { return m_SDLSurface->w; }
+	inline int getHeight() { return m_SDLSurface->h; }
 
-    inline Uint32 getColor(const Uint8 r, const Uint8 g, const Uint8 b) const
-    {
-        return SDL_MapRGB(m_SDLSurface->format, r, g, b);
-    }
+	// Copy assignements and constructor
 
-    void fill(const Uint8 r, const Uint8 g, const Uint8 b);
+	SurfaceWrapper(const SurfaceWrapper & other)
+	{
+		m_SDLSurface = SDL_ConvertSurface(other.m_SDLSurface, other.m_SDLSurface->format, SDL_SWSURFACE);
+	}
 
-    inline Uint32 GetPixel(const int x, const int y) const
-    {
-        Uint32 *bufp;
+	SurfaceWrapper & operator=(const SurfaceWrapper & other);
 
-        bufp = (Uint32 *)m_SDLSurface->pixels + y*m_SDLSurface->pitch / 4 + x;
-        return *bufp;
-    }
+	// Move assignements and constructor
 
-    inline void DrawPixel(const int x, const int y, const Uint32 color)
-    {
-        Uint32 *bufp;
-        bufp = (Uint32 *)m_SDLSurface->pixels + y*m_SDLSurface->pitch / 4 + x;
-        *bufp = color;
-    }
+	SurfaceWrapper(SurfaceWrapper && other) : m_SDLSurface(other.m_SDLSurface)
+	{
+		other.m_SDLSurface = nullptr;
+	}
 
-    inline SDL_Surface * getInnerPointer() const {
-        return m_SDLSurface;
-    }
+	SurfaceWrapper & operator=(SurfaceWrapper && other);
 
-    /***
-    * Change the pointer of the SDL_Surface. Will release the previous pointer if set.
-    ***/
-    void setInnerPointer(SDL_Surface * newSurface);
+	// Other functions
 
+	inline Uint32 getColor(const Uint8 r, const Uint8 g, const Uint8 b) const
+	{
+		return SDL_MapRGB(m_SDLSurface->format, r, g, b);
+	}
 
+	void fill(const Uint8 r, const Uint8 g, const Uint8 b);
 
-    virtual ~SurfaceWrapper();
+	inline Uint32 GetPixel(const int x, const int y) const
+	{
+		Uint32 *bufp;
+
+		bufp = (Uint32 *)m_SDLSurface->pixels + y*m_SDLSurface->pitch / 4 + x;
+		return *bufp;
+	}
+
+	inline void DrawPixel(const int x, const int y, const Uint32 color)
+	{
+		Uint32 *bufp;
+		bufp = (Uint32 *)m_SDLSurface->pixels + y*m_SDLSurface->pitch / 4 + x;
+		*bufp = color;
+	}
+
+	inline SDL_Surface * getInnerPointer() const {
+		return m_SDLSurface;
+	}
+
+	/***
+	* Change the pointer of the SDL_Surface. Will release the previous pointer if set.
+	***/
+	void setInnerPointer(SDL_Surface * newSurface);
+
+	virtual ~SurfaceWrapper();
 
 protected:
-    SDL_Surface * m_SDLSurface;
+	SDL_Surface * m_SDLSurface;
 };
 
 #endif

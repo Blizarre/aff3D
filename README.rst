@@ -1,3 +1,12 @@
+*DISCLAIMER*: This is a very old project I am in the process of cleaning up. The current goal is to keep the exact same set of functionality but to migrate the code to "modern" c++.
+I decided to try to make a pointer-less program (except for the interactions with the C library), to see how easy it was to use the new set of tools from the STL.
+The level of performances is also monitored commit after commit. 
+
+Benchmark with "original "C with class" version, rendering of 2000 frames (core i5, VC120 Release mode, average of 4 run) : 844fps
+Current version: 892 fps
+
+=======
+
 This project is just a hobby : I try to recreate a rendering engine from scratch.
 
 I am currently using SDL to get the input of the user as well as to "draw" the image (setPixel). I'm not using anything else for now, except the math library for sqrt, sin and cos.
@@ -27,6 +36,5 @@ Soon :
 * bump-mapping
 
 
-Benchmark with "original "C with class" version, rendering of 2000 frames (core i5, VC120 Release mode, average of 4 run) : 844fps
-Current version: 792 fps (loss of performancemay be due to the )
+
 

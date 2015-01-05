@@ -23,8 +23,9 @@
 #include <stdlib.h>
 #include "SDLWrapper.h"
 #include "SurfaceWrapper.h"
+#include "Rasterizer.h"
 
-#include<vector>
+#include <vector>
 #include <algorithm>
 
 #include "vertex.h"
@@ -38,183 +39,6 @@ using namespace std;
 
 const Uint32 screenWidth = 640;
 const Uint32 screenHeight = 640;
-
-typedef struct _Point {
-    int x, y;
-    float z;
-} Point;
-
-
-/**
- * Projète le vertex dans l'espca de l'écran. le +0.5 permet de mettre le point de centre (x=0, y=0) au centre de l'écran 
- qui a par convention un champ de vue de 1 unité en X et 1 unité en Y.
- Pour Z, +2 pour être certain qu'on sera devant.
- **/
-void projeter(const Vertex & i, Point & pt) {
-    pt.x = (int)((i.x + 0.5) * screenWidth);
-    pt.y = (int)((i.y + 0.5) * screenHeight);
-    pt.z = (float)(i.z + 2.0);
-}
-
-
-void sortInPlace(Point pt[]) {
-    Point tmp;
-    if(pt[1].y < pt[0].y) {
-        tmp = pt[0];
-        pt[0] = pt[1];
-        pt[1] = tmp;
-    }
-
-    if(pt[2].y < pt[1].y) {
-        tmp = pt[1];
-        pt[1] = pt[2];
-        pt[2] = tmp;
-    }
-
-    if(pt[1].y < pt[0].y) {
-        tmp = pt[0];
-        pt[0] = pt[1];
-        pt[1] = tmp;
-    }
-}
-
-
-void drawVertex(SurfaceWrapper & surface, const Triangle & t) {
-    Point tP[3];
-    for (int v=0; v<3;v++)
-        projeter(t.points[v], tP[v]);
-
-    sortInPlace(tP);
-
-    std::array<Uint32, 3> color = { surface.getColor(255, 255, 0), surface.getColor(255, 0, 255), surface.getColor(0, 255, 255) };
-
-    for(int i=0; i< 3; i++) {
-        surface.DrawPixel(tP[i].x - 1, tP[i].y, color[i]);
-        surface.DrawPixel(tP[i].x + 1, tP[i].y, color[i]);
-        surface.DrawPixel(tP[i].x, tP[i].y - 1, color[i]);
-        surface.DrawPixel(tP[i].x, tP[i].y + 1, color[i]);
-        surface.DrawPixel(tP[i].x, tP[i].y, color[i]);
-    }
-}
-
-inline void sortAndTrim(int & val1, int & val2)
-{
-    if (val2 < val1)
-    {
-        int tmp = val1;
-        val1 = val2;
-        val2 = tmp;
-    }
-
-    val1--;
-    val2++;
-
-    if (val1 < 0)
-        val1 = 0;
-    else if (val1 >= screenWidth)
-        val1 = screenWidth - 1;
-
-    if (val2 < 0)
-        val2 = 0;
-    else if (val2 >= screenWidth)
-        val2 = screenWidth - 1;
-}
-
-bool isInRangeY(int y) { return y > 0 && y < screenHeight - 1; }
-bool isInRangeX(int x) { return x > 0 && x < screenWidth - 1; }
-
-void drawLine(SurfaceWrapper & surface, int x1, int x2, int y, Uint32 color, bool isWireFrame)
-{
-    if (isInRangeY(y))
-    {
-        if (isWireFrame)
-        {
-            surface.DrawPixel(x1, y, color);
-            surface.DrawPixel(x2, y, color);
-        }
-        else
-        {
-            sortAndTrim(x1, x2);
-            for (int x = x1; x < x2; x++) // +1 et -1 pour éviter les artefacts "fil de fer"
-                surface.DrawPixel(x, y, color);
-        }
-    }
-}
-
-
-/**
- * A triangle is draw in several steps: 
- * - first, the Vertex are projected on the screen space.
- * - then, they are ordered by height.
- * - the first half of the triangle is drawn (top point to the middle point)
- * - and finally the bottom part of the triangle is drawn
- **/
-void drawTriangle(SurfaceWrapper & surface, const Triangle & t, bool isWireFrame) {
-    // TODO: bring it in Triangle or on a specialized drawing class, code reuse between the two halves
-    Vertex lightPoint(0.5574f,0.5574f, 0.5574f);
-    float lightCoeff = lightPoint.x * t.points[3].x + lightPoint.y * t.points[3].y + lightPoint.z * t.points[3].z;
-    lightCoeff = (lightCoeff > 0 ? lightCoeff : 0);
-
-    Uint32 color = surface.getColor(static_cast<Uint8>(t.r * lightCoeff), static_cast<Uint8>(t.g * lightCoeff), static_cast<Uint8>(t.b * lightCoeff));
-
-    Point tP[3];
-    for (int v=0; v<3;v++)
-        projeter(t.points[v], tP[v]);
-
-    sortInPlace(tP);
-
-    int x1, x2;
-    float a1, a2;
-    int yP;
-
-
-    if (tP[2].y > 0)
-    {
-        yP = 0;
-        if (tP[0].y == tP[2].y && tP[0].y > 0 && tP[0].y < screenHeight - 1) {
-            drawLine(surface, tP[0].x, tP[2].x, tP[0].y, color, isWireFrame);
-        }
-        else {
-            a1 = (tP[0].x - tP[2].x) / ((float)tP[0].y - tP[2].y);
-            a2 = (tP[1].x - tP[2].x) / ((float)tP[1].y - tP[2].y);
-            for (int y = tP[2].y; y > tP[1].y; y--) {
-                x1 = (int)(-a1 * yP);
-                x2 = (int)(-a2 * yP);
-
-                drawLine(surface, x1 + tP[2].x, x2 + tP[2].x, y, color, isWireFrame);
-                yP++;
-            }
-        }
-    }
-    else // if this point's height is < 0, then it will be the same for all the others
-    {
-        return;
-    }
-
-    if (tP[1].y > 0)
-    {
-        yP = 0;
-        if (tP[0].y == tP[1].y && tP[0].y > 0 && tP[0].y < screenHeight - 1) {
-            drawLine(surface, tP[0].x, tP[1].x, tP[0].y, color, isWireFrame);
-        }
-        else {
-            a1 = (tP[1].x - tP[0].x) / ((float)tP[1].y - tP[0].y);
-            a2 = (tP[2].x - tP[0].x) / ((float)tP[2].y - tP[0].y);
-
-
-            for (int y = tP[0].y; y <= tP[1].y; y++) {
-                x1 = (int)(a1 * yP);
-                x2 = (int)(a2 * yP);
-
-                drawLine(surface, x1 + tP[0].x, x2 + tP[0].x, y, color, isWireFrame);
-                yP++;
-            }
-        }
-    }
-
-
-}
-
 
 
 void flouterEcran(SurfaceWrapper & surface, std::array<signed char, 100> tabRandom) {
@@ -276,7 +100,7 @@ int main(int argc, char *argv[])
 
     SDLWrapper sdl(screenWidth, screenHeight);
     SurfaceWrapper& screen = sdl.getMainScreen();
-
+	Rasterizer rasterizer(screen);
     initTime = sdl.getTicks();
 
     // this array of 100 pseudo-random values is used to speed up computations when the quality of the randomness
@@ -338,7 +162,7 @@ int main(int argc, char *argv[])
         for(Triangle& tr : vectTriangle) {
             if(backfaceC || tr.isFacingCamera()) { 
                 drawnTriangleCount ++;
-                drawTriangle(screen, tr, isWireframe);
+                rasterizer.drawTriangle(tr, isWireframe);
             }
         }
 
