@@ -1,9 +1,16 @@
 *DISCLAIMER*: This is a very old project I am in the process of cleaning up. The current goal is to keep the exact same set of functionality but to migrate the code to "modern" c++.
-I decided to try to make a pointer-less program (except for the interactions with the C library), to see how easy it was to use the new set of tools from the STL.
+I decided to try to make a pointer-less program (except for the interactions with the C library and if needed after profiling), to see how easy it was to use the new set of tools from the STL.
 The level of performances is also monitored commit after commit. 
 
 Benchmark with "original "C with class" version, rendering of 2000 frames (core i5, VC120 Release mode, average of 4 run) : 844fps
-Current version: 904 fps
+Current version: 947 fps
+
+After profiling, the major bottlenecks are: 
+ - the sorting of triangle from further to closer (27 %)
+ - the access (write) to the SDL buffer (30 %) in drawLineNoBoundCheck, since it seems to call a ntdll function.
+
+ Using z-buffers will solve the first one, at the expense of performances, but with a more accurate result
+ It may solve a part of the second one, since the number of write for a single pixel will be reduced. However, the reason why there is a call to ntdll should be investigated. Even software surface show this bottleneck.
 
 =======
 

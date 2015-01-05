@@ -22,6 +22,7 @@ inline void widen(int & min, int & max)
 */
 inline void Rasterizer::drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color, bool isWireFrame)
 {
+	
     if (isWireFrame)
     {
         m_surface.pixel(x1, y) = color;
@@ -31,8 +32,9 @@ inline void Rasterizer::drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color
     {
         sort(x1, x2);
         widen(x1, x2);
-        for (int x = x1; x < x2; x++)
-            m_surface.pixel(x, y) = color;
+		Uint32* startPosition = &m_surface.pixel(x1, y);
+		Uint32* endPosition = &m_surface.pixel(x2, y);
+		std::fill(startPosition, endPosition, color);
     }
 }
 
@@ -54,9 +56,10 @@ inline void Rasterizer::drawLine(int x1, int x2, int y, Uint32 color, bool isWir
             sort(x1, x2);
             widen(x1, x2);
             trimXValues(x1, x2);
-            for (int x = x1; x < x2; x++)
-                m_surface.pixel(x, y) = color;
-        }
+			Uint32* startPosition = &m_surface.pixel(x1, y);
+			Uint32* endPosition = &m_surface.pixel(x2, y);
+			std::fill(startPosition, endPosition, color);
+		}
     }
 }
 
