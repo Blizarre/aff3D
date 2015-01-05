@@ -71,21 +71,16 @@ public:
 		return SDL_MapRGB(m_SDLSurface->format, r, g, b);
 	}
 
+	// fill the surface with the color (r, g, b)
 	void fill(const Uint8 r, const Uint8 g, const Uint8 b);
 
-	inline Uint32 GetPixel(const int x, const int y) const
+	// return the pixel value at index (x,y). Doesn't do any bound checking, and may read/write at an invalid location
+	inline Uint32& pixel(const int x, const int y) const
 	{
 		Uint32 *bufp;
 
 		bufp = (Uint32 *)m_SDLSurface->pixels + y*m_SDLSurface->pitch / 4 + x;
 		return *bufp;
-	}
-
-	inline void DrawPixel(const int x, const int y, const Uint32 color)
-	{
-		Uint32 *bufp;
-		bufp = (Uint32 *)m_SDLSurface->pixels + y*m_SDLSurface->pitch / 4 + x;
-		*bufp = color;
 	}
 
 	inline SDL_Surface * getInnerPointer() const {

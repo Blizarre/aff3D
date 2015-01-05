@@ -3,7 +3,7 @@ I decided to try to make a pointer-less program (except for the interactions wit
 The level of performances is also monitored commit after commit. 
 
 Benchmark with "original "C with class" version, rendering of 2000 frames (core i5, VC120 Release mode, average of 4 run) : 844fps
-Current version: 892 fps
+Current version: 904 fps
 
 =======
 
@@ -14,7 +14,7 @@ I am currently using SDL to get the input of the user as well as to "draw" the i
 It is in very early stage of development, as I'm trying to evaluate what are the technologies that I can realisticaly implement in software using "naïve" implementation at first.
 Then I'll go on to the next stage and optimize the algorithm for speed.
 
-For now it can render a teapot (in a special format), scramble the image a bit, but not much more.
+For now it can render a teapot (in a special format), scramble the image a bit, but not much more.	
 
 usage: aff3d <model> 
 (look in the data subdirectory)

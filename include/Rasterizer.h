@@ -24,14 +24,20 @@
 #include "Vertex.h"
 #include "Triangle.h"
 
-typedef struct _Point {
-	int x, y;
-} Point;
+// It is the projection of a Vertex. in the screen space.
+struct Point {
+    int x, y;
+
+    inline bool isInRange(int minX, int maxX, int minY, int maxY)
+    {
+        return (x > minX && x < maxX) && (y > minY && y < maxY);
+    }
+};
 
 
 /*
-	Represent a Rasterizer object that draw triangles on a Surface. Since I didn't wanted to use [smart-]pointers
-	as a challenger, the Rasterizer holds a "weak" reference to the SurfaceWrapper.
+	This class will draw triangles on a Surface. Since I didn't wanted to use [smart-]pointers
+	as a challenge, the Rasterizer holds a "weak" reference to the SurfaceWrapper.
 */
 class Rasterizer
 {
@@ -72,7 +78,8 @@ public:
 
 
 	// Draw a line on the Surface. x1 and x2 can be both outside the screen range 
-	inline void drawLine(int x1, int x2, int y, Uint32 color, bool isWireFrame);
+	void drawLine(int x1, int x2, int y, Uint32 color, bool isWireFrame);
+    void drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color, bool isWireFrame);
 
 	// Draw a triangle on the screen
 	void drawTriangle(const Triangle & t, bool isWireFrame);
@@ -81,8 +88,9 @@ protected:
 
 	SurfaceWrapper& m_surface;
 
-	// sortAndTrimXValues will make sure that val1 < val2 (swap them if needed) and that they will be in the screen space
-	inline void sortAndTrimXValues(int & val1, int & val2);
+	// trimXValues will make sure that va1 and val2 are in the screen space. Warning, 
+    // val1 < val2 must be true
+	void trimXValues(int & val1, int & val2);
 
 	bool isInRangeY(int y) { return y > 0 && y < m_surface.getHeight() - 1; }
 	bool isInRangeX(int x) { return x > 0 && x < m_surface.getWidth() - 1; }

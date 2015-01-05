@@ -7,7 +7,7 @@ SurfaceWrapper & SurfaceWrapper::operator=(const SurfaceWrapper & other)
 	if (this != &other)
 	{
 		this->~SurfaceWrapper();
-		SurfaceWrapper(other);
+		m_SDLSurface = other.m_SDLSurface;
 	}
 	return *this;
 }

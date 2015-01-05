@@ -42,14 +42,13 @@ const Uint32 screenHeight = 640;
 
 
 void flouterEcran(SurfaceWrapper & surface, std::array<signed char, 100> tabRandom) {
-    int x, y, color;
+    int x, y;
     SurfaceWrapper temporary = surface; // copie de la surface pour éviter de propager les diffusions
 
     for (x = 10; x<screenWidth - 10; x++)
-    for (y = 10; y < screenHeight - 10; y++) {
-        color = temporary.GetPixel(x + tabRandom[x*y % 100], y + tabRandom[x*y % 100]);
-        surface.DrawPixel(x, y, color);
-    }
+		for (y = 10; y < screenHeight - 10; y++) {
+			surface.pixel(x, y) = temporary.pixel(x + tabRandom[x*y % 100], y + tabRandom[x*y % 100]);
+		}
 }
 
 bool trierTriangle(const Triangle& d1, const Triangle& d2)
