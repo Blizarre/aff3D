@@ -41,7 +41,7 @@ const Uint32 screenWidth = 640;
 const Uint32 screenHeight = 640;
 
 
-void flouterEcran(SurfaceWrapper & surface, std::array<signed char, 100> tabRandom) {
+void scrambleImage(SurfaceWrapper & surface, std::array<signed char, 100> tabRandom) {
     int x, y;
     SurfaceWrapper temporary = surface; // copie de la surface pour éviter de propager les diffusions
 
@@ -51,11 +51,12 @@ void flouterEcran(SurfaceWrapper & surface, std::array<signed char, 100> tabRand
 		}
 }
 
-bool trierTriangle(const Triangle& d1, const Triangle& d2)
+bool sortTriangle(const Triangle& d1, const Triangle& d2)
 {
     return d1.sumOfDistances() < d2.sumOfDistances();
 }
 
+// TODO: refactor the function, create a wrapper class for the rendering loop
 int main(int argc, char *argv[])
 {
     vector<Triangle> vectTriangle;
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
     bool shouldQuit = false;
     unsigned int t=0, initTime = 0;
     int sleep;
-    bool scrambleImage = false, isWireframe = false, backfaceC = false;
+    bool scramble = false, isWireframe = false, backfaceC = false;
     vector<Triangle>::iterator it;
 
     bool autoAnimate = true;
@@ -114,7 +115,7 @@ int main(int argc, char *argv[])
     sdl.onMouseMotion([&rotX, &rotY](size_t x, size_t y) { rotX = y / 100.0f; rotY = x / 100.0f; });
     sdl.onQuitEvent([&shouldQuit]() {shouldQuit = true; } );
     sdl.onKeyPress(SDLK_ESCAPE, [&shouldQuit]() { shouldQuit = !shouldQuit; });
-    sdl.onKeyPress(SDLK_f, [&scrambleImage]() { scrambleImage = !scrambleImage; });
+    sdl.onKeyPress(SDLK_f, [&scramble]() { scramble = !scramble; });
     sdl.onKeyPress(SDLK_w, [&isWireframe]() { 
         isWireframe = !isWireframe;
     });
@@ -126,10 +127,10 @@ int main(int argc, char *argv[])
     });
 
     while(!shouldQuit) { 
-		if (benchmarkMode && frameCount >= 2000) break;
+		if (benchmarkMode && frameCount >= 2000) break; // in benchmark mode, exit after 2000 frames
 
 		Uint32 currentTime = sdl.getTicks();
-        //cout << currentTime - t <<"ms (" << drawnTriangleCount << ")"<<endl;
+
         drawnTriangleCount = 0;
 		if (!benchmarkMode)
 		{
@@ -140,11 +141,8 @@ int main(int argc, char *argv[])
 
         screen.fill(50, 50, 50);
 
-        //     delta[0] =   0; //cos(t/600.0)/4.0;
-        //     delta[1] = 0.2; //sin(t/600.0)/3.0;
         transfo = Transformation();
         if(autoAnimate) {
-            //      transfo.translate(delta);
             transfo.rotationX(t/6000.0f);
             transfo.rotationZ(t/50000.0f);
         } else {
@@ -157,19 +155,23 @@ int main(int argc, char *argv[])
 			tr.applyTransformation(transfo);
 		}
 
-        std::sort(vectTriangle.begin(), vectTriangle.end(), trierTriangle );
+		// Sort triangles by they distance from the camera. The triangles will be drawn in the sorted order, from the
+		// the back to the front.
+        std::sort(vectTriangle.begin(), vectTriangle.end(), sortTriangle );
 		
 		screen.lockSurface();
 
+		
 		for(Triangle& tr : vectTriangle) {
+			// if backface Culling is activated, test the angle of the normal of the triangle to check if it is facing the camera
             if(backfaceC || tr.isFacingCamera()) { 
                 drawnTriangleCount ++;
                 rasterizer.drawTriangle(tr, isWireframe);
             }
         }
 
-        if (scrambleImage)
-            flouterEcran(screen, tab);
+        if (scramble)
+			scrambleImage(screen, tab);
 		screen.unLockSurface();
 
         sdl.flipBuffer();
