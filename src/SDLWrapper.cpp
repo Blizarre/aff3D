@@ -15,7 +15,7 @@ SDLWrapper::SDLWrapper(size_t width, size_t height) {
         std::clog << "Audio & Video modules initialized correctly" << std::endl;
     }
 
-    m_screen.setInnerPointer(SDL_SetVideoMode(static_cast<int>(width), static_cast<int>(height), 32, SDL_HWSURFACE | SDL_DOUBLEBUF));
+    m_screen.setInnerPointer(SDL_SetVideoMode(static_cast<int>(width), static_cast<int>(height), 32, SDL_SWSURFACE | SDL_ANYFORMAT));
     
     if (m_screen.getInnerPointer() == nullptr) {
         throw std::exception(SDL_GetError());

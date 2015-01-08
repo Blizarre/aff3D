@@ -158,7 +158,10 @@ int main(int argc, char *argv[])
 		}
 
         std::sort(vectTriangle.begin(), vectTriangle.end(), trierTriangle );
-        for(Triangle& tr : vectTriangle) {
+		
+		screen.lockSurface();
+
+		for(Triangle& tr : vectTriangle) {
             if(backfaceC || tr.isFacingCamera()) { 
                 drawnTriangleCount ++;
                 rasterizer.drawTriangle(tr, isWireframe);
@@ -167,6 +170,7 @@ int main(int argc, char *argv[])
 
         if (scrambleImage)
             flouterEcran(screen, tab);
+		screen.unLockSurface();
 
         sdl.flipBuffer();
 

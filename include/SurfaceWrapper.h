@@ -83,6 +83,12 @@ public:
 		return *bufp;
 	}
 
+	// Locking of the SDL Surface: Has to be called before any access (by rasterizer or any other mean)
+	void lockSurface() { SDL_LockSurface(m_SDLSurface); }
+
+	// Unlocking of the SDL Surface: Has to be called after any access (by rasterizer or any other mean)
+	void unLockSurface() { SDL_UnlockSurface(m_SDLSurface); }
+
 	inline SDL_Surface * getInnerPointer() const {
 		return m_SDLSurface;
 	}

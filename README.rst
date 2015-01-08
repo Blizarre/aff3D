@@ -3,7 +3,7 @@ I decided to try to make a pointer-less program (except for the interactions wit
 The level of performances is also monitored commit after commit. 
 
 Benchmark with "original "C with class" version, rendering of 2000 frames (core i5, VC120 Release mode, average of 4 run) : 844fps
-Current version: 947 fps
+Current version: 970 fps
 
 After profiling, the major bottlenecks are: 
  - the sorting of triangle from further to closer (27 %)
