@@ -42,10 +42,10 @@ const Uint32 screenHeight = 640;
 
 
 void scrambleImage(SurfaceWrapper & surface, std::array<signed char, 100> tabRandom) {
-    int x, y;
+    Uint32 x, y;
     SurfaceWrapper temporary = surface; // copie de la surface pour éviter de propager les diffusions
 
-    for (x = 10; x<screenWidth - 10; x++)
+    for (x = 10; x < screenWidth - 10; x++)
 		for (y = 10; y < screenHeight - 10; y++) {
 			surface.pixel(x, y) = temporary.pixel(x + tabRandom[x*y % 100], y + tabRandom[x*y % 100]);
 		}
@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
 {
     vector<Triangle> vectTriangle;
     Transformation transfo;
-    float delta[3];
 
     bool shouldQuit = false;
     unsigned int t=0, initTime = 0;
@@ -71,10 +70,6 @@ int main(int argc, char *argv[])
 
     bool autoAnimate = true;
 	bool benchmarkMode = false;
-
-    delta[0] = 0;
-    delta[1] = 0;
-    delta[2] = 0;
 
     int drawnTriangleCount = 0, frameCount = 0;
     if(argc < 2) {

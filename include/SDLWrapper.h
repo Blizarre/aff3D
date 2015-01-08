@@ -33,40 +33,40 @@ class SDLWrapper
 {
 public:
 
-    SDLWrapper::SDLWrapper(size_t width, size_t height);
+	SDLWrapper(size_t width, size_t height);
 
-    unsigned int getTicks() { return SDL_GetTicks(); }
+	unsigned int getTicks() { return SDL_GetTicks(); }
 
-    void flipBuffer() { SDL_Flip(m_screen.getInnerPointer()); }
+	void flipBuffer() { SDL_Flip(m_screen.getInnerPointer()); }
 
-    SurfaceWrapper& getMainScreen() { return m_screen; }
-    
-    /***
-     * bind a key number to a std::function. When processEvent will be called,
-     * this function will be called at every keypress of keyNum. Warning, only
-     * one function can be bound to a keyNum. previous bindings for this keynum 
-     * will be discarded.
-     **/
-    void onKeyPress(unsigned char keyNum, std::function<void()> f)
-    {
-        m_keyboardEventBindings[keyNum] = f;
-    }
+	SurfaceWrapper& getMainScreen() { return m_screen; }
 
-    void onMouseMotion(std::function<void(size_t, size_t)> f)
-    {
-        m_onMouseMove = f;
-    }
+	/***
+	 * bind a key number to a std::function. When processEvent will be called,
+	 * this function will be called at every keypress of keyNum. Warning, only
+	 * one function can be bound to a keyNum. previous bindings for this keynum
+	 * will be discarded.
+	 **/
+	void onKeyPress(unsigned char keyNum, std::function<void()> f)
+	{
+		m_keyboardEventBindings[keyNum] = f;
+	}
 
-    void onQuitEvent(std::function<void()> f) { m_quitEvent = f; }
+	void onMouseMotion(std::function<void(size_t, size_t)> f)
+	{
+		m_onMouseMove = f;
+	}
 
-    void processEvents();
+	void onQuitEvent(std::function<void()> f) { m_quitEvent = f; }
+
+	void processEvents();
 
 protected:
-    std::map<Uint32, std::function<void(void)>> m_keyboardEventBindings;
-    std::function<void(void)> m_quitEvent;
-    std::function<void(size_t, size_t)> m_onMouseMove;
+	std::map<Uint32, std::function<void(void)>> m_keyboardEventBindings;
+	std::function<void(void)> m_quitEvent;
+	std::function<void(size_t, size_t)> m_onMouseMove;
 
-    SurfaceWrapper m_screen;
+	SurfaceWrapper m_screen;
 };
 
 

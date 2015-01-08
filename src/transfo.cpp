@@ -45,7 +45,7 @@ void Transformation::rotationX(const float rot) {
  * cosT   0     sinT
  * 0      1     0
  * -sinT  0     cosT
- *  TODO:broken, surtout pour la normale. A verifier
+ *  TODO: may be broken, check it
  * */
 void Transformation::rotationY(const float rot) {
     float a, b, cosR, sinR;
@@ -81,18 +81,18 @@ void Transformation::rotationZ(const float rot) {
 
     a = m_matrix[0];
     b = m_matrix[1];
-    m_matrix[0] = a*cos(rot) - b*sin(rot);
-    m_matrix[1] = a*sin(rot) + b*cos(rot);
+    m_matrix[0] = a*cosR - b*sinR;
+    m_matrix[1] = a*sinR + b*cosR;
 
     a = m_matrix[4];
     b = m_matrix[5];
-    m_matrix[4] = a*cos(rot) - b*sin(rot);
-    m_matrix[5] = a*sin(rot) + b*cos(rot);
+    m_matrix[4] = a*cosR - b*sinR;
+    m_matrix[5] = a*sinR + b*cosR;
 
     a = m_matrix[8];
     b = m_matrix[9];
-    m_matrix[8] = a*cos(rot) - b*sin(rot);
-    m_matrix[9] = a*sin(rot) + b*cos(rot);
+    m_matrix[8] = a*cosR - b*sinR;
+    m_matrix[9] = a*sinR + b*cosR;
 }
 
 Vertex Transformation::applyTo(const Vertex & v) const
