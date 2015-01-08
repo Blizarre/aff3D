@@ -2,6 +2,7 @@
 #include "IO.h"
 #include <fstream>
 #include <array>
+#include <stdexcept>
 
 void readTriangles(const string& fileName, vector<Triangle> & vectTriangle)
 {
@@ -12,14 +13,14 @@ void readTriangles(const string& fileName, vector<Triangle> & vectTriangle)
 	std::array<Vertex, 4> v, vMirror;
 
 	if (!dataFile)
-		throw exception("Error opening the file");
+		throw invalid_argument("Error opening the file");
 
 	while (!dataFile.eof()) {
 		for (int i = 0; i<4; i++) { // normale du triangle, puis points 1, 2, 3 du triangle
 			dataFile >> x >> y >> z;
 			if (dataFile.fail())
 			{
-				throw exception("Error reading data from file");
+				throw length_error("Error reading data from file");
 			}
 			v[i] = Vertex(x, y, z);
 			vMirror[i] = Vertex(x, y, -z); // -z car le fichier ne contient qu'une moitiée de théière. v2 représente l'autre moitiée

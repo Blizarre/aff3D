@@ -1,6 +1,6 @@
 #include "SDLWrapper.h"
 
-#include <exception>
+#include <stdexcept>
 #include <iostream>
 
 /*
@@ -9,7 +9,7 @@
 SDLWrapper::SDLWrapper(size_t width, size_t height) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)< 0) {
-        throw std::exception(SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
     }
     else {
         std::clog << "Audio & Video modules initialized correctly" << std::endl;
@@ -18,7 +18,7 @@ SDLWrapper::SDLWrapper(size_t width, size_t height) {
     m_screen.setInnerPointer(SDL_SetVideoMode(static_cast<int>(width), static_cast<int>(height), 32, SDL_SWSURFACE | SDL_ANYFORMAT));
     
     if (m_screen.getInnerPointer() == nullptr) {
-        throw std::exception(SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
     }
     else
     {
