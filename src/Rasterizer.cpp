@@ -65,8 +65,6 @@ inline void Rasterizer::drawLine(int x1, int x2, int y, Uint32 color, bool isWir
 
 void Rasterizer::trimXValues(int & val1, int & val2)
 {
-	// add an extra pixel at the beginning and at the end of the line to make sure that no gap will be left between polygons
-
 	// TODO: use the fact that val1 < val2
 	if (val1 < 0)
 		val1 = 0;
