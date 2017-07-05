@@ -88,7 +88,7 @@ public:
 
 	// Draw a line on the Surface. x1 and x2 can be both outside the screen range 
 	void drawLine(int x1, int x2, int y, Uint32 color, bool isWireFrame);
-    void drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color, bool isWireFrame);
+        void drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color, bool isWireFrame);
 
 	// Draw a triangle on the screen
 	void drawTriangle(const Triangle & t, bool isWireFrame);
@@ -98,7 +98,7 @@ protected:
 	SurfaceWrapper& m_surface;
 
 	// trimXValues will make sure that va1 and val2 are in the screen space. Warning, 
-    // val1 < val2 must be true
+        // val1 < val2 must be true
 	void trimXValues(int & val1, int & val2);
 
 	bool isInRangeY(int y) { return y > 0 && y < m_surface.getHeight() - 1; }
