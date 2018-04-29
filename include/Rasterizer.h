@@ -44,6 +44,7 @@ class Rasterizer
 public:
 	
 	// Create a new Rasterizer from the surface. Holds a weak reference to this surface. Do not let it out of scope !
+	// TODO: use a smarter pointer
 	Rasterizer(SurfaceWrapper & surface) : m_surface(surface) { }
 
 	// we simply "Steal" the reference of the other Rasterizer

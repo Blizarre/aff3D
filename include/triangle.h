@@ -30,8 +30,8 @@ typedef unsigned char u8;
 
 class Triangle {
 public:
-	u8 r, g, b;
 	std::array<Vertex, 4> points;
+	u8 r, g, b;
 
 	Triangle() : r(0), g(0), b(0) {}
 
@@ -60,12 +60,10 @@ public:
 	void applyTransformation(const Transformation & tr);
 	float sumOfDistances() const;
 	bool isFacingCamera() const;
-	void setRawData(const std::array<Vertex, 4> & newRawData);
 
 protected:
 	// original data points, without transformation
 	std::array<Vertex, 4> m_rawData;
-
 };
 
 #endif

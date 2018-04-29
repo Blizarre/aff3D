@@ -30,7 +30,7 @@ class Vertex {
     float x, y, z;
     
     /**
-     * Constructeur par défaut : Attention, les valeurs de x, y et z ne sont pas initialisées
+     * x, y, and z are not initialized to any particular value
      **/
     Vertex() { }
 
@@ -41,7 +41,7 @@ class Vertex {
     Vertex operator-(const Vertex v);
     Vertex operator/(const float f);
     
-    float norme();
+    float norm();
     void normer();
 };
 

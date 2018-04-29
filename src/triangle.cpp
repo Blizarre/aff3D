@@ -14,12 +14,6 @@ float Triangle::sumOfDistances() const {
     return (this->points[0].z + this->points[1].z + this->points[2].z);
 }
 
-void Triangle::setRawData(const std::array<Vertex, 4> & newRawData)
-{
-    m_rawData = newRawData;
-}
-
-
 void Triangle::applyTransformation(const Transformation & tr)
 {
 	tr.applyTo(m_rawData, points);

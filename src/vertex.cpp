@@ -1,56 +1,42 @@
 #include"vertex.h"
 
-
-/**
- * renvoie un nouveau Vertex résultat de la multipication membre à membre
- * des éléments du vecteur courant avec ceux de v
- **/
+// element-wise multiply 
 Vertex Vertex::operator*(const Vertex v) {
-    float x, y, z;
-    x = v.x * this->x;
-    y = v.y * this->y;
-    z = v.z * this->z;
-    return Vertex(x, y, z);
+    float x2, y2, z2;
+    x2 = v.x * this->x;
+    y2 = v.y * this->y;
+    z2 = v.z * this->z;
+    return Vertex(x2, y2, z2);
 }
 
-/**
- * Renvoie un nouveau Vertex résultat de la soustraction membre à membre
- * des éléments du vecteur courant avec ceux de v
- **/
+// element-wise substraction
 Vertex Vertex::operator-(const Vertex v) {
-    float x, y, z;
-    x = this->x - v.x;
-    y = this->y - v.y;
-    z = this->z - v.z;
-    return Vertex(x, y, z);
+    float x2, y2, z2;
+    x2 = this->x - v.x;
+    y2 = this->y - v.y;
+    z2 = this->z - v.z;
+    return Vertex(x2, y2, z2);
 }
-    
-/**
- * renvoie un nouveau Vertex avec les éléments du vecteur courant divisés par une constante
- **/
+   
+// element-wise division
 Vertex Vertex::operator/(const float f) {
-    float x, y, z;
-    x = this->x / f;
-    y = this->y / f;
-    z = this->z / f;
-    return Vertex(x, y, z);
+    float x2, y2, z2;
+    x2 = this->x / f;
+    y2 = this->y / f;
+    z2 = this->z / f;
+    return Vertex(x2, y2, z2);
 }
 
-/**
- * Normalise le vecteur courant
- **/
+// normalization in place
 void Vertex::normer() {
-    float n  = this->norme();
+    float n  = this->norm();
     this->x /= n;
     this->y /= n;
     this->z /= n;
 }
 
-/**
- * Calcule la norme du vecteur courant
- * TODO: optimiser sqrt au besoin, voir http://www.codemaestro.com/reviews/9  ?
- **/
-float Vertex::norme() {
+// return the norm of the vector
+float Vertex::norm() {
     return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
 }
 
