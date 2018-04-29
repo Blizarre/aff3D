@@ -73,15 +73,15 @@ int main(int argc, char *argv[])
 
     int drawnTriangleCount = 0, frameCount = 0;
     if(argc < 2) {
-        cout <<"Usage : " <<argv[0] <<" Modele /benchmark" <<endl;
+        cout <<"Usage : " <<argv[0] <<" <stl file> [/benchmark]" <<endl;
         return EXIT_FAILURE;
     } 
 
 	try
 	{
-		readFromFile(argv[1], vectTriangle);
+		vectTriangle = readFromFile(argv[1]);
 	}
-	catch (exception& e)
+	catch (runtime_error& e)
 	{
 		cerr << "Couldn't read data from file" << endl;
 		cerr << "Message: " << e.what();

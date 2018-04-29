@@ -3,78 +3,176 @@
 #include <fstream>
 #include <array>
 #include <stdexcept>
+#include <cassert>
+#include <limits>
 
-void readTriangles(const string& fileName, vector<Triangle> & vectTriangle)
-{
-	// TODO: fd not released in case of exception, use RAII
-	ifstream dataFile(fileName);
-	float x, y, z;
 
-	std::array<Vertex, 4> v, vMirror;
+class STLFileParser {
+public:
+	STLFileParser(const string& fileName)
+	{
+		ifstream dataFile(fileName);
 
-	if (!dataFile)
-		throw invalid_argument("Error opening the file");
+		if (!dataFile)
+			throw invalid_argument("Error opening the file");
 
-	while (!dataFile.eof()) {
-		for (int i = 0; i<4; i++) { // normale du triangle, puis points 1, 2, 3 du triangle
-			dataFile >> x >> y >> z;
-			if (dataFile.fail())
-			{
-				throw length_error("Error reading data from file");
+		std::string word;
+		std::string title;
+		Vertex a, b, c, normal;
+		State state = State::SOLID;
+		// File format:
+		//
+		// solid name
+		//  facet normal ni nj nk
+		//   outer loop
+		//    vertex v1x v1y v1z
+		//    vertex v2x v2y v2z
+		//    vertex v3x v3y v3z
+		//   endloop
+		//  endfacet
+		//  facet normal ...
+		//   outer loop
+		//   ...
+		//   endloop
+		//  endfacet
+		// endsolid
+
+		// tokenizer: all tokens are separated by space
+		while (dataFile >> word) {
+			switch (state) {
+			case State::SOLID:
+				expectKeyword("solid", word);
+				dataFile >> title;
+				state = State::FACET;
+				break;
+			case State::FACET:
+				if (word == "endsolid") {
+					state = State::END_SOLID;
+				}
+				else {
+					expectKeyword("facet", word);
+					dataFile >> word;
+					expectKeyword("normal", word);
+					normal = readVertex(dataFile);
+					normal.normer();
+					state = State::OUTER_LOOP;
+				}
+				break;
+			case State::OUTER_LOOP:
+				expectKeyword("outer", word);
+				dataFile >> word;
+				expectKeyword("loop", word);
+				state = State::VERTEX_LIST;
+				break;
+			case State::VERTEX_LIST:
+				expectKeyword("vertex", word);
+				a = readVertex(dataFile);
+				dataFile >> word;
+				expectKeyword("vertex", word);
+				b = readVertex(dataFile);
+				dataFile >> word;
+				expectKeyword("vertex", word);
+				c = readVertex(dataFile);
+				vectTriangle.push_back(Triangle(a, b, c, normal, 0, 0, 255));
+				state = State::END_LOOP;
+				break;
+			case State::END_LOOP:
+				expectKeyword("endloop", word);
+				dataFile >> word;
+				expectKeyword("endfacet", word);
+				state = State::FACET;
+				break;
+			case State::END_SOLID:
+				break;
 			}
-			v[i] = Vertex(x, y, z);
-			vMirror[i] = Vertex(x, y, -z); // -z car le fichier ne contient qu'une moitiée de théière. v2 représente l'autre moitiée
 		}
-		v[0].normer();
-		vMirror[0].normer();
-		vectTriangle.push_back(Triangle(v[1], v[2], v[3], v[0], 0, 0, 255));       // point 1, 2, 3, puis normale
-		vectTriangle.push_back(Triangle(vMirror[1], vMirror[2], vMirror[3], vMirror[0], 0, 0, 255));
 	}
-}
+
+	const vector<Triangle> triangles() {
+		return vectTriangle;
+	}
+
+private:
+
+	vector<Triangle> vectTriangle;
+
+	void expectKeyword(std::string expected, std::string read) {
+		if (expected != read) {
+			throw runtime_error("STL: Expect keyword '" + expected + "', got " + read);
+		}
+	}
+
+	enum class State {
+		SOLID, FACET, OUTER_LOOP, VERTEX_LIST, END_LOOP, END_SOLID
+	};
+
+	Vertex readVertex(ifstream& stream) {
+		float x, y, z;
+		stream >> x;
+		stream >> y;
+		stream >> z;
+		return Vertex(x, y, z);
+	}
+};
+
+class TriangleNormalizer {
+public:
+
+	template <class Iter>
+	TriangleNormalizer(Iter begin, Iter end) {
+		while (begin != end) {
+			for (int i = 0; i < 3; i++) {
+				minX = MIN(minX, begin->points[i].x);
+				minY = MIN(minY, begin->points[i].y);
+				minZ = MIN(minZ, begin->points[i].z);
+				maxX = MIN(maxX, begin->points[i].x);
+				maxY = MIN(maxY, begin->points[i].y);
+				maxZ = MIN(maxZ, begin->points[i].z);
+			}
+			begin++;
+		}
+		scale = MAX3(maxX - minX, maxY - minY, maxZ - minZ);
+	}
+
+	template <class RandomAccessIterator>
+	vector<Triangle> normalize(RandomAccessIterator begin, RandomAccessIterator end) {
+		vector<Triangle> normalized(end - begin);
+		while (begin != end) {
+			Triangle t = *begin;
+			for (int i = 0; i < 3; i++) {
+				Vertex& v = t.points[i];
+				v.x -= (maxX - minX) / 2.0f;
+				v.y -= (maxY - minY) / 2.0f;
+				v.z -= (maxZ - minZ) / 2.0f;
+
+				v.x /= scale;
+				v.y /= scale;
+				v.z /= scale;
+			}
+			normalized.push_back(t);
+			begin++;
+		}
+		return normalized;
+	}
+
+private:
+	float minX = numeric_limits<float>::max();
+	float maxX = numeric_limits<float>::min();
+	float minY = numeric_limits<float>::max();
+	float maxY = numeric_limits<float>::min();
+	float minZ = numeric_limits<float>::max();
+	float maxZ = numeric_limits<float>::min();
+
+	float scale;
+};
 
 /**
- * Lit le fichier de données depuis le fichier filename. pour l'instant, le format est 
- * non documenté (STL reformaté). A améliorer pour prendre en compte le STL et les erreurs.
+ * Read the file `fileName` and fill the vectTriangle vector with the Triangles.
+ * The processing will throw a std::string on error. 
  **/
-void readFromFile(const string& fileName, vector<Triangle> & vectTriangle) {
-	readTriangles(fileName, vectTriangle);
-
-    cout << "scaling model" <<endl;
-
-    float minX = 100000, maxX = -100000, minY = 100000, maxY = -100000, minZ = 100000, maxZ = -100000;
-    int numVert;
-    for(auto& tr : vectTriangle) {
-        for(numVert = 0; numVert < 3; numVert ++) {
-            if(tr.points[numVert].x < minX) minX = tr.points[numVert].x;
-            if(tr.points[numVert].y < minY) minY = tr.points[numVert].y;
-            if(tr.points[numVert].z < minZ) minZ = tr.points[numVert].z;
-            if(tr.points[numVert].x > maxX) maxX = tr.points[numVert].x;
-            if(tr.points[numVert].y > maxY) maxY = tr.points[numVert].y;
-            if(tr.points[numVert].z > maxZ) maxZ = tr.points[numVert].z;
-        }
-    }
-    cout <<"minX: "<< minX<< ", maxX: " << maxX <<endl;
-    
-    float coeffEchelle = MAX3(maxX-minX, maxY-minY, maxZ-minZ);
-    
-    for(auto& tr : vectTriangle) {
-        // Make sure that the rawData of the Triangle is re-initialized with the correct values.
-        // TODO: refactor this part of the code from scratch and implement a proper normalization/data loading code
-        std::array<Vertex, 4> data = tr.points;
-        for(numVert = 0; numVert < 3; numVert ++) {
-            data[numVert].x -= (maxX - minX) / 2.0f;
-            data[numVert].y -= (maxY - minY) / 2.0f;
-            data[numVert].z -= (maxZ - minZ) / 2.0f;
-            
-            data[numVert].x /= coeffEchelle;
-            data[numVert].y /= -coeffEchelle; // the "-" will revert the teapot upside-down
-            data[numVert].z /= coeffEchelle;
-        }
-        data[3] = tr.points[3];
-        data[3].y = -tr.points[3].y; // revert the normal also since the y component has been reverted
-
-        tr.setRawData(data);
-    }
-    
-    cout <<"Triangles : " <<vectTriangle.size() <<endl;
+vector<Triangle> readFromFile(const string& fileName) {
+	STLFileParser file(fileName);
+	auto triangles = file.triangles();
+	TriangleNormalizer normalizer(triangles.cbegin(), triangles.cend());
+	return normalizer.normalize(triangles.cbegin(), triangles.cend());
 }
