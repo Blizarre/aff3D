@@ -5,17 +5,45 @@
 #include <stdexcept>
 #include <cassert>
 #include <limits>
+#include <memory>
 
-
-class STLFileParser {
+class FileParser {
 public:
-	STLFileParser(const string& fileName)
+	virtual const vector<Triangle> triangles() = 0;
+	static unique_ptr<FileParser> FileParser::getParser(const string& fileName);
+};
+
+class ASCIISTLFile: public FileParser {
+public:
+	ASCIISTLFile(const string& fileName)
 	{
 		ifstream dataFile(fileName);
 
 		if (!dataFile)
 			throw invalid_argument("Error opening the file");
 
+		parse(dataFile);
+	}
+
+	virtual const vector<Triangle> triangles() {
+		return vectTriangle;
+	}
+
+	static bool canParse(const string& fileName) {
+		try {
+			new ASCIISTLFile(fileName);
+		}
+		catch (runtime_error e) {
+			return false;
+		}
+		return true;
+	}
+
+private:
+
+	vector<Triangle> vectTriangle;
+
+	void parse(ifstream& dataFile) {
 		std::string word;
 		std::string title;
 		Vertex a, b, c, normal;
@@ -88,14 +116,6 @@ public:
 		}
 	}
 
-	const vector<Triangle> triangles() {
-		return vectTriangle;
-	}
-
-private:
-
-	vector<Triangle> vectTriangle;
-
 	void expectKeyword(std::string expected, std::string read) {
 		if (expected != read) {
 			throw runtime_error("STL: Expect keyword '" + expected + "', got " + read);
@@ -114,6 +134,13 @@ private:
 		return Vertex(x, y, z);
 	}
 };
+
+unique_ptr<FileParser> FileParser::getParser(const string& fileName) {
+	if (ASCIISTLFile::canParse(fileName)) {
+		return std::make_unique<ASCIISTLFile>(fileName);
+	}
+	throw new invalid_argument("Cannot find a suitable Parser");
+}
 
 class TriangleNormalizer {
 public:
@@ -166,13 +193,14 @@ private:
 	float scale;
 };
 
+
 /**
  * Read the file `fileName` and fill the vectTriangle vector with the Triangles.
  * The processing will throw a std::string on error. 
  **/
 vector<Triangle> readFromFile(const string& fileName) {
-	STLFileParser file(fileName);
-	auto triangles = file.triangles();
+	auto parser = FileParser::getParser(fileName);
+	auto triangles = parser->triangles();
 	TriangleNormalizer normalizer(triangles.cbegin(), triangles.cend());
 	return normalizer.normalize(triangles.cbegin(), triangles.cend());
-}
+}	
