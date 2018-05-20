@@ -17,12 +17,12 @@ inline void widen(int & min, int & max)
 }
 
 /*
- Draw the horizontal line between the two points x1 and x2 at height y. Doesn't make any boundary check: if x1, x2 or y is invalid, 
+ Draw the horizontal line between the two points x1 and x2 at height y. Doesn't make any boundary check: if x1, x2 or y is invalid,
  memory will be written at an invalid location
 */
 inline void Rasterizer::drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color, bool isWireFrame)
 {
-	
+
     if (isWireFrame)
     {
         m_surface.pixel(x1, y) = color;
@@ -32,15 +32,15 @@ inline void Rasterizer::drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color
     {
         sort(x1, x2);
         widen(x1, x2);
-		Uint32* startPosition = &m_surface.pixel(x1, y);
-		Uint32* endPosition = &m_surface.pixel(x2, y);
-		std::fill(startPosition, endPosition, color);
+        Uint32* startPosition = &m_surface.pixel(x1, y);
+        Uint32* endPosition = &m_surface.pixel(x2, y);
+        std::fill(startPosition, endPosition, color);
     }
 }
 
 /*
 Draw the horizontal line between the two points x1 and x2 at height y. Make a boundary check: if x1, x2 is invalid,
-draw only the visible portion of the line. if y is invalid, does not write anything. 
+draw only the visible portion of the line. if y is invalid, does not write anything.
 */
 inline void Rasterizer::drawLine(int x1, int x2, int y, Uint32 color, bool isWireFrame)
 {
@@ -56,25 +56,25 @@ inline void Rasterizer::drawLine(int x1, int x2, int y, Uint32 color, bool isWir
             sort(x1, x2);
             widen(x1, x2);
             trimXValues(x1, x2);
-			Uint32* startPosition = &m_surface.pixel(x1, y);
-			Uint32* endPosition = &m_surface.pixel(x2, y);
-			std::fill(startPosition, endPosition, color);
-		}
+            Uint32* startPosition = &m_surface.pixel(x1, y);
+            Uint32* endPosition = &m_surface.pixel(x2, y);
+            std::fill(startPosition, endPosition, color);
+        }
     }
 }
 
 void Rasterizer::trimXValues(int & val1, int & val2)
 {
-	// TODO: use the fact that val1 < val2
-	if (val1 < 0)
-		val1 = 0;
-	else if (val1 >= m_surface.getWidth())
-		val1 = m_surface.getWidth() - 1;
+    // TODO: use the fact that val1 < val2
+    if (val1 < 0)
+        val1 = 0;
+    else if (val1 >= m_surface.getWidth())
+        val1 = m_surface.getWidth() - 1;
 
-	if (val2 < 0)
-		val2 = 0;
-	else if (val2 >= m_surface.getWidth())
-		val2 = m_surface.getWidth() - 1;
+    if (val2 < 0)
+        val2 = 0;
+    else if (val2 >= m_surface.getWidth())
+        val2 = m_surface.getWidth() - 1;
 }
 
 /**
@@ -94,14 +94,14 @@ void Rasterizer::drawTriangle(const Triangle & t, bool isWireFrame) {
     Uint32 color = m_surface.getColor(static_cast<Uint8>(t.r * lightCoeff), static_cast<Uint8>(t.g * lightCoeff), static_cast<Uint8>(t.b * lightCoeff));
 
     Point tP[3];
-    
+
     bool isFullyDrawn = true;
     bool isNotDrawn = true;
 
     for (int v = 0; v < 3; v++)
     {
         projectToScreen(t.points[v], tP[v]);
-        if (tP[v].isInRange(1, m_surface.getWidth() -1, 0, m_surface.getHeight())) // one pixel is added at the left and right of every line to fill gaps between triangles.
+        if (tP[v].isInRange(1, m_surface.getWidth() - 1, 0, m_surface.getHeight())) // one pixel is added at the left and right of every line to fill gaps between triangles.
         {
             isNotDrawn = false;
         }

@@ -1,7 +1,7 @@
 #include "triangle.h"
 
 /**
- * Returns true if the Triangle is facing the camera. 
+ * Returns true if the Triangle is facing the camera.
  **/
 bool Triangle::isFacingCamera() const {
     return (this->points[3].z) > 0;
@@ -16,5 +16,5 @@ float Triangle::sumOfDistances() const {
 
 void Triangle::applyTransformation(const Transformation & tr)
 {
-	tr.applyTo(m_rawData, points);
+    tr.applyTo(m_rawData, points);
 }

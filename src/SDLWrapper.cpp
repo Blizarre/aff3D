@@ -8,7 +8,7 @@
 **/
 SDLWrapper::SDLWrapper(size_t width, size_t height) {
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)< 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         throw std::runtime_error(SDL_GetError());
     }
     else {
@@ -16,7 +16,7 @@ SDLWrapper::SDLWrapper(size_t width, size_t height) {
     }
 
     m_screen.setInnerPointer(SDL_SetVideoMode(static_cast<int>(width), static_cast<int>(height), 32, SDL_SWSURFACE | SDL_ANYFORMAT));
-    
+
     if (m_screen.getInnerPointer() == nullptr) {
         throw std::runtime_error(SDL_GetError());
     }

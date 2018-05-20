@@ -17,7 +17,7 @@ Vertex Vertex::operator-(const Vertex v) {
     z2 = this->z - v.z;
     return Vertex(x2, y2, z2);
 }
-   
+
 // element-wise division
 Vertex Vertex::operator/(const float f) {
     float x2, y2, z2;
@@ -29,7 +29,7 @@ Vertex Vertex::operator/(const float f) {
 
 // normalization in place
 void Vertex::normer() {
-    float n  = this->norm();
+    float n = this->norm();
     this->x /= n;
     this->y /= n;
     this->z /= n;
