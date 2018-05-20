@@ -24,6 +24,7 @@
 #define __VERTEX_V__1325465
 
 #include <cmath>
+#include <istream>
 
 class Vertex {
     public:
@@ -44,6 +45,5 @@ class Vertex {
     float norm();
     void normer();
 };
-
 
 #endif

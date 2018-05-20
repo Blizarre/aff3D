@@ -31,7 +31,9 @@
 #include "vertex.h"
 #include "triangle.h"
 #include "transfo.h"
-#include "IO.h"
+#include "IO/FileParser.h"
+#include "IO/TriangleNormaliser.h"
+
 #include "utils.h"
 #include "stdlib.h"
 
@@ -40,6 +42,16 @@ using namespace std;
 const Uint32 screenWidth = 640;
 const Uint32 screenHeight = 640;
 
+/**
+* Read the file `fileName` and fill the vectTriangle vector with the Triangles.
+* The processing will throw a std::string on error.
+**/
+vector<Triangle> readFromFile(const string& fileName) {
+	auto parser = FileParser::getParser(fileName);
+	std::vector<Triangle> triangles = parser->triangles();
+	TriangleNormalizer normalizer(triangles.cbegin(), triangles.cend());
+	return normalizer.normalize(triangles.cbegin(), triangles.cend());
+}
 
 void scrambleImage(SurfaceWrapper & surface, std::array<signed char, 100> tabRandom) {
     Uint32 x, y;
