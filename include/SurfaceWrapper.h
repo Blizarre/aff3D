@@ -18,90 +18,80 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
-
 #ifndef __SURFACEWRAPPER_H_456124654
 
 #define __SURFACEWRAPPER_H_456124654
 
 #include <SDL.h>
 
-/* 
-   This class is a Wrapper implementing RAII for the SDL_Surface pointer. 
+/*
+   This class is a Wrapper implementing RAII for the SDL_Surface pointer.
    A copy of the class will make a copy of the Surface.
 */
-class SurfaceWrapper
-{
+class SurfaceWrapper {
 public:
+  SurfaceWrapper() { m_SDLSurface = nullptr; }
 
-	SurfaceWrapper()
-	{
-		m_SDLSurface = nullptr;
-	}
+  SurfaceWrapper(SDL_Surface *const surface) { m_SDLSurface = surface; }
 
-	SurfaceWrapper(SDL_Surface * const surface)
-	{
-		m_SDLSurface = surface;
-	}
+  inline int getWidth() { return m_SDLSurface->w; }
+  inline int getHeight() { return m_SDLSurface->h; }
 
-	inline int getWidth() { return m_SDLSurface->w; }
-	inline int getHeight() { return m_SDLSurface->h; }
+  // Copy assignements and constructor
 
-	// Copy assignements and constructor
+  SurfaceWrapper(const SurfaceWrapper &other) {
+    m_SDLSurface = SDL_ConvertSurface(
+        other.m_SDLSurface, other.m_SDLSurface->format, SDL_SWSURFACE);
+  }
 
-	SurfaceWrapper(const SurfaceWrapper & other)
-	{
-		m_SDLSurface = SDL_ConvertSurface(other.m_SDLSurface, other.m_SDLSurface->format, SDL_SWSURFACE);
-	}
+  SurfaceWrapper &operator=(const SurfaceWrapper &other);
 
-	SurfaceWrapper & operator=(const SurfaceWrapper & other);
+  // Move assignements and constructor
 
-	// Move assignements and constructor
+  SurfaceWrapper(SurfaceWrapper &&other) : m_SDLSurface(other.m_SDLSurface) {
+    other.m_SDLSurface = nullptr;
+  }
 
-	SurfaceWrapper(SurfaceWrapper && other) : m_SDLSurface(other.m_SDLSurface)
-	{
-		other.m_SDLSurface = nullptr;
-	}
+  SurfaceWrapper &operator=(SurfaceWrapper &&other);
 
-	SurfaceWrapper & operator=(SurfaceWrapper && other);
+  // Other functions
 
-	// Other functions
+  inline Uint32 getColor(const Uint8 r, const Uint8 g, const Uint8 b) const {
+    return SDL_MapRGB(m_SDLSurface->format, r, g, b);
+  }
 
-	inline Uint32 getColor(const Uint8 r, const Uint8 g, const Uint8 b) const
-	{
-		return SDL_MapRGB(m_SDLSurface->format, r, g, b);
-	}
+  // fill the surface with the color (r, g, b)
+  void fill(const Uint8 r, const Uint8 g, const Uint8 b);
 
-	// fill the surface with the color (r, g, b)
-	void fill(const Uint8 r, const Uint8 g, const Uint8 b);
+  // return the pixel value at index (x,y). Doesn't do any bound checking, and
+  // may read/write at an invalid location
+  inline Uint32 &pixel(const int x, const int y) const {
+    Uint32 *bufp;
 
-	// return the pixel value at index (x,y). Doesn't do any bound checking, and may read/write at an invalid location
-	inline Uint32& pixel(const int x, const int y) const
-	{
-		Uint32 *bufp;
+    bufp = (Uint32 *)m_SDLSurface->pixels + y * m_SDLSurface->pitch / 4 + x;
+    return *bufp;
+  }
 
-		bufp = (Uint32 *)m_SDLSurface->pixels + y*m_SDLSurface->pitch / 4 + x;
-		return *bufp;
-	}
+  // Locking of the SDL Surface: Has to be called before any access (by
+  // rasterizer or any other mean)
+  void lockSurface() { SDL_LockSurface(m_SDLSurface); }
 
-	// Locking of the SDL Surface: Has to be called before any access (by rasterizer or any other mean)
-	void lockSurface() { SDL_LockSurface(m_SDLSurface); }
+  // Unlocking of the SDL Surface: Has to be called after any access (by
+  // rasterizer or any other mean)
+  void unLockSurface() { SDL_UnlockSurface(m_SDLSurface); }
 
-	// Unlocking of the SDL Surface: Has to be called after any access (by rasterizer or any other mean)
-	void unLockSurface() { SDL_UnlockSurface(m_SDLSurface); }
+  inline SDL_Surface *getInnerPointer() const { return m_SDLSurface; }
 
-	inline SDL_Surface * getInnerPointer() const {
-		return m_SDLSurface;
-	}
+  /***
+  * Change the pointer of the SDL_Surface. Will release the previous pointer if
+  *set.
+  ***/
+  void setInnerPointer(SDL_Surface *newSurface);
 
-	/***
-	* Change the pointer of the SDL_Surface. Will release the previous pointer if set.
-	***/
-	void setInnerPointer(SDL_Surface * newSurface);
-
-	virtual ~SurfaceWrapper();
+  virtual ~SurfaceWrapper();
 
 protected:
-	SDL_Surface * m_SDLSurface;
+  SDL_Surface *m_SDLSurface;
 };
 
 #endif

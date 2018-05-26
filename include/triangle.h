@@ -22,48 +22,48 @@
 
 #define __TRIANGLE_H_443354423
 
-#include <array>
 #include "transfo.h"
 #include "vertex.h"
+#include <array>
 
 typedef unsigned char u8;
 
 class Triangle {
 public:
-	std::array<Vertex, 4> points;
-	u8 r, g, b;
+  std::array<Vertex, 4> points;
+  u8 r, g, b;
 
-	Triangle() : r(0), g(0), b(0) {}
+  Triangle() : r(0), g(0), b(0) {}
 
-	Triangle(Vertex a, Vertex b, Vertex c, Vertex n) {
-		m_rawData[0] = a;
-		m_rawData[1] = b;
-		m_rawData[2] = c;
-		m_rawData[3] = n;
-		points = m_rawData; // copy the rawData to initialize points
-		this->r = 0;
-		this->g = 0;
-		this->b = 255;
-	}
+  Triangle(Vertex a, Vertex b, Vertex c, Vertex n) {
+    m_rawData[0] = a;
+    m_rawData[1] = b;
+    m_rawData[2] = c;
+    m_rawData[3] = n;
+    points = m_rawData; // copy the rawData to initialize points
+    this->r = 0;
+    this->g = 0;
+    this->b = 255;
+  }
 
-	Triangle(Vertex a, Vertex b, Vertex c, Vertex n, u8 cr, u8 cg, u8 cb) {
-		m_rawData[0] = a;
-		m_rawData[1] = b;
-		m_rawData[2] = c;
-		m_rawData[3] = n;
-		points = m_rawData; // copy the rawData to initialize points
-		this->r = cr;
-		this->g = cg;
-		this->b = cb;
-	}
+  Triangle(Vertex a, Vertex b, Vertex c, Vertex n, u8 cr, u8 cg, u8 cb) {
+    m_rawData[0] = a;
+    m_rawData[1] = b;
+    m_rawData[2] = c;
+    m_rawData[3] = n;
+    points = m_rawData; // copy the rawData to initialize points
+    this->r = cr;
+    this->g = cg;
+    this->b = cb;
+  }
 
-	void applyTransformation(const Transformation & tr);
-	float sumOfDistances() const;
-	bool isFacingCamera() const;
+  void applyTransformation(const Transformation &tr);
+  float sumOfDistances() const;
+  bool isFacingCamera() const;
 
 protected:
-	// original data points, without transformation
-	std::array<Vertex, 4> m_rawData;
+  // original data points, without transformation
+  std::array<Vertex, 4> m_rawData;
 };
 
 #endif

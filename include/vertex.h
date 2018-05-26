@@ -18,7 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
 #ifndef __VERTEX_V__1325465
 
 #define __VERTEX_V__1325465
@@ -27,23 +26,24 @@
 #include <istream>
 
 class Vertex {
-    public:
-    float x, y, z;
-    
-    /**
-     * x, y, and z are not initialized to any particular value
-     **/
-    Vertex() { }
+public:
+  float x, y, z;
 
-    Vertex(const float _x, const float _y, const float _z): x(_x), y(_y), z(_z) { }
-    Vertex(const Vertex &v): x(v.x), y(v.y), z(v.z) { }
+  /**
+   * x, y, and z are not initialized to any particular value
+   **/
+  Vertex() {}
 
-    Vertex operator*(const Vertex v);
-    Vertex operator-(const Vertex v);
-    Vertex operator/(const float f);
-    
-    float norm();
-    void normer();
+  Vertex(const float _x, const float _y, const float _z)
+      : x(_x), y(_y), z(_z) {}
+  Vertex(const Vertex &v) : x(v.x), y(v.y), z(v.z) {}
+
+  Vertex operator*(const Vertex v);
+  Vertex operator-(const Vertex v);
+  Vertex operator/(const float f);
+
+  float norm();
+  void normer();
 };
 
 #endif
