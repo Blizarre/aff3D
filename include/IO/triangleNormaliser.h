@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Triangle.h"
+#include "triangle.h"
 #include "utils.h"
 #include <limits>
 #include <vector>

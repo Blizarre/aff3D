@@ -1,4 +1,4 @@
-#include "SurfaceWrapper.h"
+#include "surfaceWrapper.h"
 
 SurfaceWrapper &SurfaceWrapper::operator=(const SurfaceWrapper &other) {
   if (this != &other) {

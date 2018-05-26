@@ -22,7 +22,7 @@
 
 #define __SURFACEWRAPPER_H_456124654
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 /*
    This class is a Wrapper implementing RAII for the SDL_Surface pointer.

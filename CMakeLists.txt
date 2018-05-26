@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8) 
 project(Aff3D)
 
-find_package(SDL REQUIRED)
+find_package(SDL2 REQUIRED)
 
 if(NOT WIN32)
 	find_library(MATH m)
@@ -18,6 +18,7 @@ include_directories(include)
 file( GLOB
     sources
     src/*.cpp
+    src/IO/*.cpp
     )
 
 include_directories(${SDL_INCLUDE_DIR})

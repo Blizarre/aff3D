@@ -18,9 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "Rasterizer.h"
+#include "rasterizer.h"
 #include "SDLWrapper.h"
-#include "SurfaceWrapper.h"
+#include "surfaceWrapper.h"
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
@@ -28,8 +28,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "IO/FileParser.h"
-#include "IO/TriangleNormaliser.h"
+#include "IO/fileParser.h"
+#include "IO/triangleNormaliser.h"
 #include "transfo.h"
 #include "triangle.h"
 #include "vertex.h"

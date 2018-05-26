@@ -22,8 +22,8 @@
 
 #define __SDLWRAPPER_H_456123165
 
-#include "SurfaceWrapper.h"
-#include <SDL.h>
+#include "surfaceWrapper.h"
+#include <SDL2/SDL.h>
 #include <functional>
 #include <iostream>
 #include <map>
