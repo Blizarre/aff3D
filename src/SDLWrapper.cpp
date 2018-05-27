@@ -14,9 +14,21 @@ SDLWrapper::SDLWrapper(size_t width, size_t height) {
     std::clog << "Audio & Video modules initialized correctly" << std::endl;
   }
 
-  m_screen.setInnerPointer(SDL_SetVideoMode(static_cast<int>(width),
-                                            static_cast<int>(height), 32,
-                                            SDL_SWSURFACE | SDL_ANYFORMAT));
+  SDL_Surface *surface;
+
+  /* Create window and renderer for given surface */
+  window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED, width, height, 0);
+  if (!window) {
+    throw std::runtime_error(SDL_GetError());
+  }
+  surface = SDL_GetWindowSurface(window);
+  renderer = SDL_CreateSoftwareRenderer(surface);
+  if (!renderer) {
+    throw std::runtime_error(SDL_GetError());
+  }
+
+  m_screen.setInnerPointer(surface);
 
   if (m_screen.getInnerPointer() == nullptr) {
     throw std::runtime_error(SDL_GetError());
@@ -40,8 +52,7 @@ void SDLWrapper::processEvents() {
       break;
 
     case SDL_KEYDOWN:
-      std::clog << "scancode " << (int)(event.key.keysym.sym) << " unicode "
-                << event.key.keysym.unicode << std::endl;
+      std::clog << "scancode " << (int)(event.key.keysym.sym) << std::endl;
       {
         auto itFind = m_keyboardEventBindings.find(event.key.keysym.sym);
         if (itFind != m_keyboardEventBindings.end())

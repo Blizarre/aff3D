@@ -34,7 +34,7 @@ public:
 
   unsigned int getTicks() { return SDL_GetTicks(); }
 
-  void flipBuffer() { SDL_Flip(m_screen.getInnerPointer()); }
+  void flipBuffer() { SDL_UpdateWindowSurface(window); }
 
   SurfaceWrapper &getMainScreen() { return m_screen; }
 
@@ -62,6 +62,8 @@ protected:
   std::function<void(size_t, size_t)> m_onMouseMove;
 
   SurfaceWrapper m_screen;
+  SDL_Renderer *renderer;
+  SDL_Window *window;
 };
 
 #endif /* __SDLWRAPPER_H_456123165 */
