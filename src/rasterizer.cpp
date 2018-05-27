@@ -1,4 +1,4 @@
-#include "Rasterizer.h"
+#include "rasterizer.h"
 
 // TODO: Create line Object
 

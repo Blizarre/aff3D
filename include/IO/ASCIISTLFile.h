@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include <IO/FileParser.h>
+#include <IO/fileParser.h>
 
 class ASCIISTLFile : public FileParser {
 public:

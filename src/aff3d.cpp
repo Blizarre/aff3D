@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "rasterizer.h"
 #include "SDLWrapper.h"
+#include "rasterizer.h"
 #include "surfaceWrapper.h"
 #include <iostream>
 #include <math.h>
