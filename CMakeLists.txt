@@ -3,16 +3,7 @@ project(Aff3D)
 
 find_package(SDL2 REQUIRED)
 
-if(NOT WIN32)
-	find_library(MATH m)
-else()
-	set(MATH "")
-endif()
-
-link_libraries (
-       ${SDL_LIBRARY}
-       ${MATH_LIBRARY}
-)
+link_libraries (${SDL2_LIBRARIES})
 
 include_directories(include)
 file( GLOB
@@ -21,7 +12,7 @@ file( GLOB
     src/IO/*.cpp
     )
 
-include_directories(${SDL_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR})
 
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
@@ -29,7 +20,7 @@ if(MSVC)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++14")
 endif()
 
 ADD_EXECUTABLE(aff3D ${sources})
