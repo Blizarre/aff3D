@@ -5,7 +5,7 @@ before_install:
   - docker pull ubuntu:trusty
   - docker run --name build -d ubuntu:trusty sleep infinity
 install:
-  - docker run build sudo apt install -y cmake libsdl2-dev
+  - docker exec build sudo apt install -y cmake libsdl2-dev
 script:
   - docker run sh -c "mkdir build && cd build && cmake .. && make"
 language: c++
