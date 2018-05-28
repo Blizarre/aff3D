@@ -34,7 +34,9 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
   while (dataFile >> word) {
     switch (state) {
     case State::SOLID:
-      expectKeyword("solid", word);
+      if(word != "solid") {
+        throw InvalidFileType("Does not start with the keyword 'solid'");
+      }
       dataFile >> title;
       state = State::FACET;
       break;
