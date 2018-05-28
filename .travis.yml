@@ -1,8 +1,11 @@
-install: 
-  - sudo apt update
-  - sudo apt install -y cmake libsdl2-dev libegl1-mesa-dev
+sudo: required
+service:
+  - docker
+before_install:
+  - docker pull ubuntu:trusty
+  - docker run --name build -d ubuntu:trusty sleep infinity
+install:
+  - docker run build sudo apt install -y cmake libsdl2-dev
 script:
-  - mkdir build && cd build
-  - cmake ..
-  - make
+  - docker run sh -c "mkdir build && cd build && cmake .. && make"
 language: c++
