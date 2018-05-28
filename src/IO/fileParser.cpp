@@ -1,5 +1,5 @@
-#include "IO/fileParser.h"
-#include "IO/ASCIISTLFile.h"
+#include "fileParser.h"
+#include "ASCIISTLFile.h"
 
 std::unique_ptr<FileParser> FileParser::getParser(const std::string &fileName) {
   if (ASCIISTLFile::canParse(fileName)) {

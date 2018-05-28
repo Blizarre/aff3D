@@ -1,4 +1,4 @@
-#include <IO/ASCIISTLFile.h>
+#include "ASCIISTLFile.h"
 
 // De-serialisation primitive
 std::istream &operator>>(std::istream &stream, Vertex &v) {
