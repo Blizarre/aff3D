@@ -1,4 +1,6 @@
-install: sudo apt install -y cmake libsdl2-dev libegl1-mesa-dev
+install: 
+  - sudo apt update
+  - sudo apt install -y cmake libsdl2-dev libegl1-mesa-dev
 script:
   - mkdir build && cd build
   - cmake ..
