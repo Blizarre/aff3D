@@ -6,7 +6,7 @@ before_install:
   - docker run --name build -d ubuntu:trusty sleep infinity
 install:
   - docker exec build sudo apt update
-  - docker exec build sudo apt install -y cmake libsdl2-dev
+  - docker exec build sudo apt install -y cmake libsdl2-dev libgles2-mesa-dev
 script:
   - docker run sh -c "mkdir build && cd build && cmake .. && make"
 language: c++
