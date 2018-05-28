@@ -1,0 +1,5 @@
+install: cmake libSDL2-dev
+script:
+  - mkdir build && cd build
+  - cmake ..
+  - make
