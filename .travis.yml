@@ -1,4 +1,4 @@
-install: cmake libSDL2-dev
+install: apt install cmake libSDL2-dev
 script:
   - mkdir build && cd build
   - cmake ..
