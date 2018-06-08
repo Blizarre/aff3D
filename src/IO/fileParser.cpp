@@ -1,5 +1,6 @@
 #include "fileParser.h"
 #include "ASCIISTLFile.h"
+#include "BINSTLFile.h"
 
 #include <cerrno>
 #include <cstring>
@@ -12,5 +13,10 @@ std::unique_ptr<FileParser> FileParser::getParser(const std::string &fileName) {
     throw ParseError(std::string("Cannot open ") + fileName + ", " +
                      std::strerror(errno));
   }
-  return std::make_unique<ASCIISTLFile>(file);
+  try {
+    return std::make_unique<ASCIISTLFile>(file);
+  } catch (const InvalidFileType &e) {
+  }
+  file.seekg(0, std::ios::beg);
+  return std::make_unique<BINSTLFile>(file);
 }
