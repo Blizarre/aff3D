@@ -33,7 +33,7 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
   while (dataFile >> word) {
     switch (state) {
     case State::SOLID:
-      if(word != "solid") {
+      if (word != "solid") {
         throw InvalidFileType("Does not start with the keyword 'solid'");
       }
       dataFile >> _description;

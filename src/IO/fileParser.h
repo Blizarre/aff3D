@@ -10,7 +10,7 @@ public:
   ParseError(const std::string &msg) : std::runtime_error(msg) {}
 };
 
-class InvalidFileType: public std::runtime_error {
+class InvalidFileType : public std::runtime_error {
 public:
   InvalidFileType(const std::string &msg) : std::runtime_error(msg) {}
 };

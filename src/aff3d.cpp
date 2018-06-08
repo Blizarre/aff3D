@@ -80,7 +80,6 @@ int main(int argc, char *argv[]) {
   unsigned int t = 0, initTime = 0;
   int sleep;
   bool scramble = false, isWireframe = false, backfaceC = false;
-  vector<Triangle>::iterator it;
 
   bool autoAnimate = true;
   bool benchmarkMode = false;
