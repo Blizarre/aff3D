@@ -18,5 +18,6 @@ public:
 class FileParser {
 public:
   virtual const std::vector<Triangle> triangles() = 0;
+  virtual const std::string description() = 0;
   static std::unique_ptr<FileParser> getParser(const std::string &fileName);
 };

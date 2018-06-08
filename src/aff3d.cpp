@@ -49,6 +49,7 @@ const Uint32 screenHeight = 640;
 vector<Triangle> readFromFile(const string &fileName) {
   auto parser = FileParser::getParser(fileName);
   std::vector<Triangle> triangles = parser->triangles();
+  std::cout << "File description: " << parser->description() << std::endl;
   TriangleNormalizer normalizer(triangles.cbegin(), triangles.cend());
   return normalizer.normalize(triangles.cbegin(), triangles.cend());
 }

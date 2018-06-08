@@ -10,28 +10,14 @@
 
 class ASCIISTLFile : public FileParser {
 public:
-  ASCIISTLFile(const std::string &fileName) {
-    std::ifstream dataFile(fileName);
+  ASCIISTLFile(std::ifstream &data) { parse(data); }
 
-    if (!dataFile)
-      throw ParseError("Error opening the file");
-
-    parse(dataFile);
-  }
-
-  virtual const std::vector<Triangle> triangles() { return vectTriangle; }
-
-  static bool canParse(const std::string &fileName) {
-    try {
-      new ASCIISTLFile(fileName);
-    } catch (std::runtime_error e) {
-      return false;
-    }
-    return true;
-  }
+  virtual const std::vector<Triangle> triangles() { return _triangles; }
+  virtual const std::string description() { return _description; }
 
 private:
-  std::vector<Triangle> vectTriangle;
+  std::vector<Triangle> _triangles;
+  std::string _description;
 
   void parse(std::istream &dataFile);
 

@@ -10,7 +10,6 @@ std::istream &operator>>(std::istream &stream, Vertex &v) {
 
 void ASCIISTLFile::parse(std::istream &dataFile) {
   std::string word;
-  std::string title;
   Vertex vertex1, vertex2, vertex3, vertexIgnored;
   State state = State::SOLID;
   // File format:
@@ -37,7 +36,7 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
       if(word != "solid") {
         throw InvalidFileType("Does not start with the keyword 'solid'");
       }
-      dataFile >> title;
+      dataFile >> _description;
       state = State::FACET;
       break;
     case State::FACET:
@@ -67,7 +66,7 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
       dataFile >> word;
       expectKeyword("vertex", word);
       dataFile >> vertex3;
-      vectTriangle.push_back(
+      _triangles.push_back(
           Triangle(vertex1, vertex2, vertex3, vertexIgnored, 0, 0, 255));
       state = State::END_LOOP;
       break;
