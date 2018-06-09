@@ -33,7 +33,7 @@ SDLWrapper::SDLWrapper(size_t width, size_t height) {
   if (m_screen.getInnerPointer() == nullptr) {
     throw std::runtime_error(SDL_GetError());
   } else {
-    std::clog << "Video mode set correctly";
+    std::clog << "Video mode OK" << std::endl;
   }
 
   std::atexit(SDL_Quit);

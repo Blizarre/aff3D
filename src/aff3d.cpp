@@ -43,10 +43,6 @@ using namespace std;
 const Uint32 screenWidth = 640;
 const Uint32 screenHeight = 640;
 
-/**
-* Read the file `fileName` and fill the vectTriangle vector with the Triangles.
-* The processing will throw a std::string on error.
-**/
 vector<Triangle> readFromFile(const string &fileName) {
   auto parser = FileParser::getParser(fileName);
   std::vector<Triangle> triangles = parser->triangles();
@@ -59,7 +55,7 @@ void scrambleImage(SurfaceWrapper &surface,
                    std::array<signed char, 100> tabRandom) {
   Uint32 x, y;
   SurfaceWrapper temporary =
-      surface; // copie de la surface pour éviter de propager les diffusions
+      surface;
 
   for (x = 10; x < screenWidth - 10; x++)
     for (y = 10; y < screenHeight - 10; y++) {
