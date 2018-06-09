@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/Blizarre/aff3D.svg?branch=master
+    :target: https://travis-ci.org/Blizarre/aff3D
+
 *DISCLAIMER*: This is a very old project I am in the process of cleaning up. The current goal is to keep the exact same set of functionality but to migrate the code to "modern" c++.
 I decided to try to make a pointer-less program (except for the interactions with the C library and if needed after profiling), to see how easy it was to use the new set of tools from the STL.
 The level of performances is also monitored commit after commit. 
