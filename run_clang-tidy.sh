@@ -2,11 +2,11 @@
 
 set -e
 
-cd "$(dirname "$0")"
 if test ! -f compile_commands.json; then
-  echo "The compilation database has not been found in the root directory."
-  echo "CMake should generate one for you the the build directory. Link it to:"
-  echo "<repo_root>/compile_commands.json"
+  echo "The compilation database (compile_commands.json) has not been found in
+  echo "the current directory. You should execute this script from the Cmake
+  echo "build directory."
   exit 1
 fi
-find src -iname "*.cpp" -exec clang-tidy '{}' \;
+
+find "$(dirname "$0")/src" -iname "*.cpp" -exec clang-tidy '{}' \;
