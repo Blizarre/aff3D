@@ -104,16 +104,12 @@ int main(int argc, char *argv[]) {
   Rasterizer rasterizer(screen);
   initTime = sdl.getTicks();
 
-  Chronometer<unsigned int> chrono{
-    {
-      "wait for beginning of frame",
-      "fill screen",
-      "transform",
-      "sort",
-      "raster",
-      "present"
-    },
-    sdl.getTicks};
+  Chronometer<unsigned int> chrWait{"Wait before drawing", sdl.getTicks},
+    chrFillScreen{"Fill Screen", sdl.getTicks},
+    chrTransform{"Transform triangles", sdl.getTicks},
+    chrSort{"Sort triangles", sdl.getTicks},
+    chrRaster{"Raster triangles", sdl.getTicks},
+    chrPresentImage{"Present image", sdl.getTicks};
 
   // this array of 100 pseudo-random values is used to speed up computations
   // when the quality of the randomness
@@ -138,7 +134,6 @@ int main(int argc, char *argv[]) {
 
 
   while (!shouldQuit) {
-    chrono.firstStep();
     Uint32 startRenderFrame = sdl.getTicks();
 
     if (benchmarkMode && frameCount >= 2000)
@@ -150,10 +145,10 @@ int main(int argc, char *argv[]) {
       SDL_Delay((sleep > 0 ? sleep : 1));
     }
 
-    chrono.nextStep();
+    chrWait.addTimeSince(startRenderFrame);
 
     screen.fill(50, 50, 50);
-    chrono.nextStep();
+    chrFillScreen.addTimeSince(chrWait.lastEndTime());
 
     transfo = Transformation();
     if (autoAnimate) {
@@ -167,13 +162,13 @@ int main(int argc, char *argv[]) {
     for (Triangle &tr : vectTriangle) {
       tr.applyTransformation(transfo);
     }
-    chrono.nextStep();
+    chrTransform.addTimeSince(chrFillScreen.lastEndTime());
 
     // Sort triangles by they distance from the camera. The triangles will be
     // drawn in the sorted order, from the
     // the back to the front.
     std::sort(vectTriangle.begin(), vectTriangle.end(), compareTriangleZ);
-    chrono.nextStep();
+    chrTransform.addTimeSince(chrFillScreen.lastEndTime());
 
 
     screen.lockSurface();
@@ -186,7 +181,7 @@ int main(int argc, char *argv[]) {
         rasterizer.drawTriangle(tr, isWireframe);
       }
     }
-    chrono.nextStep();
+    chrRaster.addTimeSince(chrTransform.lastEndTime());
 
     if (scramble)
       scrambleImage(screen, tab);
@@ -195,7 +190,7 @@ int main(int argc, char *argv[]) {
 
     sdl.flipBuffer();
 
-    chrono.finalStep();
+    chrPresentImage.addTimeSince(chrRaster.lastEndTime());
 
     // Ignore all input during benchmark... Should be kept short !
     if (!benchmarkMode) {
@@ -208,7 +203,7 @@ int main(int argc, char *argv[]) {
   cout << frameCount << " frames in " << (sdl.getTicks() - initTime)
        << " ms., mean fps : "
        << int(frameCount / ((sdl.getTicks() - initTime) / 1000.0)) << endl
-       << chrono;
+       << chrWait << chrFillScreen << chrTransform << chrRaster << chrPresentImage;
 
   return 0;
 }
