@@ -17,8 +17,8 @@ template <typename T> T read(std::istream &is) {
   return token;
 }
 
-auto readf = [](std::istream &is) { return read<float>(is); };
-auto readu16 = [](std::istream &is) { return read<uint16_t>(is); };
+auto readf = read<float>;
+auto readu16 = read<uint16_t>;
 
 Vertex readVertex(std::istream &is) {
   return Vertex(readf(is), readf(is), readf(is));
