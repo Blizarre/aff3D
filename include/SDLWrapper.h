@@ -32,7 +32,7 @@ class SDLWrapper {
 public:
   SDLWrapper(size_t width, size_t height);
 
-  unsigned int getTicks() { return SDL_GetTicks(); }
+  unsigned int static getTicks() { return SDL_GetTicks(); }
 
   void flipBuffer() { SDL_UpdateWindowSurface(window); }
 

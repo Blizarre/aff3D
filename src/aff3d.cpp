@@ -33,6 +33,7 @@
 #include "transfo.h"
 #include "triangle.h"
 #include "vertex.h"
+#include "chronometer.hpp"
 
 #include "stdlib.h"
 #include "utils.h"
@@ -67,7 +68,7 @@ void scrambleImage(SurfaceWrapper &surface,
     }
 }
 
-bool sortTriangle(const Triangle &d1, const Triangle &d2) {
+bool compareTriangleZ(const Triangle &d1, const Triangle &d2) {
   return d1.sumOfDistances() < d2.sumOfDistances();
 }
 
@@ -77,7 +78,7 @@ int main(int argc, char *argv[]) {
   Transformation transfo;
 
   bool shouldQuit = false;
-  unsigned int t = 0, initTime = 0;
+  unsigned int initTime = 0;
   int sleep;
   bool scramble = false, isWireframe = false, backfaceC = false;
 
@@ -107,6 +108,17 @@ int main(int argc, char *argv[]) {
   Rasterizer rasterizer(screen);
   initTime = sdl.getTicks();
 
+  Chronometer<unsigned int> chrono{
+    {
+      "wait for beginning of frame",
+      "fill screen",
+      "transform",
+      "sort",
+      "raster",
+      "present"
+    },
+    sdl.getTicks};
+
   // this array of 100 pseudo-random values is used to speed up computations
   // when the quality of the randomness
   // is not important. no need to call rand every time.
@@ -128,25 +140,29 @@ int main(int argc, char *argv[]) {
   sdl.onKeyPress(SDLK_b, [&backfaceC]() { backfaceC = !backfaceC; });
   sdl.onKeyPress(SDLK_q, [&autoAnimate]() { autoAnimate = !autoAnimate; });
 
+
   while (!shouldQuit) {
+    chrono.firstStep();
+    Uint32 startRenderFrame = sdl.getTicks();
+
     if (benchmarkMode && frameCount >= 2000)
       break; // in benchmark mode, exit after 2000 frames
 
-    Uint32 currentTime = sdl.getTicks();
-
     drawnTriangleCount = 0;
     if (!benchmarkMode) {
-      sleep = 24 - (currentTime - t);
+      sleep = 24 - (sdl.getTicks() - startRenderFrame);
       SDL_Delay((sleep > 0 ? sleep : 1));
     }
-    t = sdl.getTicks();
+
+    chrono.nextStep();
 
     screen.fill(50, 50, 50);
+    chrono.nextStep();
 
     transfo = Transformation();
     if (autoAnimate) {
-      transfo.rotationX(t / 6000.0f);
-      transfo.rotationZ(t / 50000.0f);
+      transfo.rotationX(startRenderFrame/ 6000.0f);
+      transfo.rotationZ(startRenderFrame / 50000.0f);
     } else {
       transfo.rotationX(rotX);
       transfo.rotationZ(rotY);
@@ -155,11 +171,14 @@ int main(int argc, char *argv[]) {
     for (Triangle &tr : vectTriangle) {
       tr.applyTransformation(transfo);
     }
+    chrono.nextStep();
 
     // Sort triangles by they distance from the camera. The triangles will be
     // drawn in the sorted order, from the
     // the back to the front.
-    std::sort(vectTriangle.begin(), vectTriangle.end(), sortTriangle);
+    std::sort(vectTriangle.begin(), vectTriangle.end(), compareTriangleZ);
+    chrono.nextStep();
+
 
     screen.lockSurface();
 
@@ -171,23 +190,29 @@ int main(int argc, char *argv[]) {
         rasterizer.drawTriangle(tr, isWireframe);
       }
     }
+    chrono.nextStep();
 
     if (scramble)
       scrambleImage(screen, tab);
+
     screen.unLockSurface();
 
     sdl.flipBuffer();
 
+    chrono.finalStep();
+
     // Ignore all input during benchmark... Should be kept short !
-    if (!benchmarkMode)
+    if (!benchmarkMode) {
       sdl.processEvents();
+    }
 
     frameCount++;
 
   } // End Game Loop
   cout << frameCount << " frames in " << (sdl.getTicks() - initTime)
        << " ms., mean fps : "
-       << int(frameCount / ((sdl.getTicks() - initTime) / 1000.0)) << endl;
+       << int(frameCount / ((sdl.getTicks() - initTime) / 1000.0)) << endl
+       << chrono;
 
   return 0;
 }
