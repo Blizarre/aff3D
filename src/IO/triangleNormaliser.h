@@ -49,10 +49,10 @@ inline std::vector<Triangle>
 TriangleNormalizer::normalize(RandomAccessIterator begin,
                               RandomAccessIterator end) {
   std::vector<Triangle> normalized(end - begin);
+  auto normedIt = normalized.begin();
 
   while (begin != end) {
     Triangle t = *begin;
-    auto normedIt = normalized.begin();
     for (int i = 0; i < 3; i++) {
       Vertex &v = t.points[i];
       v.x -= (maxX - minX) / 2.0f;
