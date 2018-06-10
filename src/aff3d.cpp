@@ -151,7 +151,9 @@ int main(int argc, char *argv[]) {
     chrFillScreen.addTimeSince(chrWait.lastEndTime());
 
     transfo = Transformation();
-    transfo.translate({-0.5, -0.5, 3});
+    
+    // Center the model on (0,0)
+    transfo.translate({-0.5, -0.5, 1});
     if (autoAnimate) {
       transfo.rotationX(startRenderFrame/ 6000.0f);
       transfo.rotationZ(startRenderFrame / 50000.0f);
