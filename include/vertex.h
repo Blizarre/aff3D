@@ -47,7 +47,7 @@ public:
   }
 
   float norm();
-  void normer();
+  void normInPlace();
 };
 
 #endif

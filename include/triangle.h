@@ -48,8 +48,8 @@ public:
     origPoints[0] = a;
     origPoints[1] = b;
     origPoints[2] = c;
-    m_normal = n;
-    normal = m_normal;
+    origNormal = n;
+    normal = origNormal;
     points = origPoints; // copy the rawData to initialize points
     this->r = 0;
     this->g = 0;
@@ -60,9 +60,11 @@ public:
     origPoints[0] = a;
     origPoints[1] = b;
     origPoints[2] = c;
-    m_normal = computeNormal(a, b, c);
+    origNormal = computeNormal(a, b, c);
+    origNormal.normInPlace();
+
     points = origPoints; // copy the rawData to initialize points
-    normal = m_normal;
+    normal = origNormal;
     this->r = 0;
     this->g = 0;
     this->b = 255;
@@ -72,9 +74,9 @@ public:
     origPoints[0] = a;
     origPoints[1] = b;
     origPoints[2] = c;
-    m_normal = n;
+    origNormal = n;
     points = origPoints; // copy the rawData to initialize points
-    normal = m_normal;
+    normal = origNormal;
     this->r = cr;
     this->g = cg;
     this->b = cb;
@@ -86,7 +88,7 @@ public:
   Vertex computeNormal(Vertex& a, Vertex& b, Vertex& c);
 
 protected:
-  Vertex m_normal;
+  Vertex origNormal;
 };
 
 #endif

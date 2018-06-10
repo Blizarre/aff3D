@@ -28,7 +28,7 @@ Vertex Vertex::operator/(const float f) {
 }
 
 // normalization in place
-void Vertex::normer() {
+void Vertex::normInPlace() {
   float n = this->norm();
   this->x /= n;
   this->y /= n;
