@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
     // drawn in the sorted order, from the
     // the back to the front.
     std::sort(vectTriangle.begin(), vectTriangle.end(), compareTriangleZ);
-    chrTransform.addTimeSince(chrFillScreen.lastEndTime());
+    chrSort.addTimeSince(chrTransform.lastEndTime());
 
 
     screen.lockSurface();
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
         rasterizer.drawTriangle(tr, isWireframe);
       }
     }
-    chrRaster.addTimeSince(chrTransform.lastEndTime());
+    chrRaster.addTimeSince(chrSort.lastEndTime());
 
     if (scramble)
       scrambleImage(screen, tab);
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
   cout << frameCount << " frames in " << (sdl.getTicks() - initTime)
        << " ms., mean fps : "
        << int(frameCount / ((sdl.getTicks() - initTime) / 1000.0)) << endl
-       << chrWait << chrFillScreen << chrTransform << chrRaster << chrPresentImage;
+       << chrWait << chrFillScreen << chrTransform << chrSort << chrRaster << chrPresentImage;
 
   return 0;
 }
