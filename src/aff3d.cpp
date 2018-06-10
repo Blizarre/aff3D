@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
   int sleep;
   bool scramble = false, isWireframe = false, backfaceC = false;
 
-  bool autoAnimate = true;
+  bool autoAnimate = false;
   bool benchmarkMode = false;
 
   int drawnTriangleCount = 0, frameCount = 0;
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
   for (auto &val : tab)
     val = rand() % 19 - 9; // between -9 and 9
 
-  float rotX = 0.01f, rotY = 0.01f;
+  float rotX = 0.00f, rotY = 0.00f;
 
   sdl.onMouseMotion([&rotX, &rotY](size_t x, size_t y) {
     rotX = y / 100.0f;
@@ -151,6 +151,7 @@ int main(int argc, char *argv[]) {
     chrFillScreen.addTimeSince(chrWait.lastEndTime());
 
     transfo = Transformation();
+    transfo.translate({-0.5, -0.5, 3});
     if (autoAnimate) {
       transfo.rotationX(startRenderFrame/ 6000.0f);
       transfo.rotationZ(startRenderFrame / 50000.0f);

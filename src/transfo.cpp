@@ -10,6 +10,10 @@ void Transformation::translate(const float delta[3]) {
       m_matrix[8] * delta[0] + m_matrix[9] * delta[1] + m_matrix[10] * delta[2];
 }
 
+void Transformation::translate(const std::array<float, 3>& delta) {
+  translate(delta.data());
+}
+
 /**
  *Attention, les matrices sont des 4x4 !!! Il y a une ligne et une colonne dont
  *les valeurs sont indispensables aux calculs

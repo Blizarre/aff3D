@@ -23,6 +23,7 @@ public:
   }
 
   void translate(const float delta[3]);
+  void translate(const std::array<float, 3>& delta);
 
   void rotationX(const float rot);
   void rotationY(const float rot);
