@@ -34,7 +34,8 @@ typedef unsigned char u8;
 class Triangle {
 public:
   // point 0,1 and 2 are the vertexes of the triangle, while 4 is the normal
-  std::array<Vertex, 4> points;
+  std::array<Vertex, 3> points;
+  Vertex normal;
   u8 r, g, b;
 
   Triangle() : r(0), g(0), b(0) {}
@@ -43,8 +44,21 @@ public:
     m_rawData[0] = a;
     m_rawData[1] = b;
     m_rawData[2] = c;
-    m_rawData[3] = n;
+    m_normal = n;
+    normal = m_normal;
     points = m_rawData; // copy the rawData to initialize points
+    this->r = 0;
+    this->g = 0;
+    this->b = 255;
+  }
+
+  Triangle(Vertex a, Vertex b, Vertex c) {
+    m_rawData[0] = a;
+    m_rawData[1] = b;
+    m_rawData[2] = c;
+    m_normal = computeNormal(a, b, c);
+    points = m_rawData; // copy the rawData to initialize points
+    normal = m_normal;
     this->r = 0;
     this->g = 0;
     this->b = 255;
@@ -54,8 +68,9 @@ public:
     m_rawData[0] = a;
     m_rawData[1] = b;
     m_rawData[2] = c;
-    m_rawData[3] = n;
+    m_normal = n;
     points = m_rawData; // copy the rawData to initialize points
+    normal = m_normal;
     this->r = cr;
     this->g = cg;
     this->b = cb;
@@ -64,10 +79,12 @@ public:
   void applyTransformation(const Transformation &tr);
   float sumOfDistances() const;
   bool isFacingCamera() const;
+  Vertex computeNormal(Vertex& a, Vertex& b, Vertex& c);
 
 protected:
   // original data points, without transformation
-  std::array<Vertex, 4> m_rawData;
+  std::array<Vertex, 3> m_rawData;
+  Vertex m_normal;
 };
 
 #endif

@@ -82,9 +82,9 @@ void Rasterizer::trimXValues(int &val1, int &val2) {
 void Rasterizer::drawTriangle(const Triangle &t, bool isWireFrame) {
   // TODO: code reuse between the two halves
   Vertex lightPoint(0.5574f, 0.5574f, 0.5574f);
-  float lightCoeff = lightPoint.x * t.points[3].x +
-                     lightPoint.y * t.points[3].y +
-                     lightPoint.z * t.points[3].z;
+  float lightCoeff = lightPoint.x * t.normal.x +
+                     lightPoint.y * t.normal.y +
+                     lightPoint.z * t.normal.z;
   lightCoeff = (lightCoeff > 0 ? lightCoeff : 0);
 
   Uint32 color = m_surface.getColor(static_cast<Uint8>(t.r * lightCoeff),
