@@ -57,8 +57,8 @@ public:
   // Project the vertex in the screen space. the view is centered around 0 in x
   // and y thanks to the +0.5.
   inline void projectToScreen(const Vertex &i, Point &pt) {
-    pt.x = (int)((i.x + 0.5) * m_surface.getWidth());
-    pt.y = (int)((i.y + 0.5) * m_surface.getHeight());
+    pt.x = (int)((i.x/i.z + 0.5) * m_surface.getWidth());
+    pt.y = (int)((i.y/i.z + 0.5) * m_surface.getHeight());
   }
 
   // Sort three points along their y component
