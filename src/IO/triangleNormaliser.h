@@ -35,9 +35,9 @@ inline TriangleNormalizer::TriangleNormalizer(Iter begin, Iter end) {
       minX = MIN(minX, begin->points[i].x);
       minY = MIN(minY, begin->points[i].y);
       minZ = MIN(minZ, begin->points[i].z);
-      maxX = MIN(maxX, begin->points[i].x);
-      maxY = MIN(maxY, begin->points[i].y);
-      maxZ = MIN(maxZ, begin->points[i].z);
+      maxX = MAX(maxX, begin->points[i].x);
+      maxY = MAX(maxY, begin->points[i].y);
+      maxZ = MAX(maxZ, begin->points[i].z);
     }
     begin++;
   }
@@ -54,10 +54,10 @@ TriangleNormalizer::normalize(RandomAccessIterator begin,
   while (begin != end) {
     Triangle t = *begin;
     for (int i = 0; i < 3; i++) {
-      Vertex &v = t.points[i];
-      v.x -= (maxX - minX) / 2.0f;
-      v.y -= (maxY - minY) / 2.0f;
-      v.z -= (maxZ - minZ) / 2.0f;
+      Vertex &v = t.origPoints[i];
+      v.x -= minX + (maxX - minX) / 2.0f;
+      v.y -= minY + (maxY - minY) / 2.0f;
+      v.z -= minZ + (maxZ - minZ) / 2.0f;
 
       v.x /= scale;
       v.y /= scale;
