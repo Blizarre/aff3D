@@ -3,7 +3,7 @@
 /**
  * Returns true if the Triangle is facing the camera.
  **/
-bool Triangle::isFacingCamera() const { return (this->points[3].z) > 0; }
+bool Triangle::isFacingCamera() const { return (this->normal.z) > 0; }
 
 /**
  * Compute the sum of the distance of all vertex to the camera. Used to rank the
