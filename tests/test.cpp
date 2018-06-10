@@ -9,23 +9,22 @@
 namespace tests {
 
 std::string validSTL1 = R"n0(solid test0
-  facet normal 1 0 0
+  facet normal 4 5 6  
   outer loop
-    vertex 1 0 0
-    vertex 0 1 0
-    vertex 0 0 1
+    vertex 01 02 03   
+    vertex 11 12 13
+    vertex 21 22 23
   endloop
   endfacet
-endsolid
+endsolid 
 )n0";
 
   std::string validSTL1_description{"test0"};
 
-std::array<Vertex, 4> validSTL1_vertexes {
-  Vertex{1, 0, 0},
-  Vertex{0, 1, 0},
-  Vertex{0, 0, 1},
-  Vertex{1, 0, 0}
+std::array<Vertex, 3> validSTL1_vertexes {
+  Vertex{1, 2, 3},
+  Vertex{11, 12, 13},
+  Vertex{21, 22, 23},
 };
 
 std::string notSTL = R"n0(not a
