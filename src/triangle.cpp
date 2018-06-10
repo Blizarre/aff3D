@@ -14,7 +14,7 @@ float Triangle::sumOfDistances() const {
 }
 
 void Triangle::applyTransformation(const Transformation &tr) {
-  tr.applyTo(m_rawData, points);
+  tr.applyTo(origPoints, points);
   tr.applyTo(m_normal, normal);
 }
 
