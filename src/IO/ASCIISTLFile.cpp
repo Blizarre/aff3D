@@ -1,10 +1,22 @@
 #include "ASCIISTLFile.h"
 
+#include <string>
+
+float readFloat(std::istream &is) {
+  float f;
+  if(! (is >> f)) {
+    throw ParseError(
+        std::string("Invalid floating point number detected at position ")
+        + std::to_string(is.tellg()));
+   }
+  return f;
+}
+
 // De-serialisation primitive
 std::istream &operator>>(std::istream &stream, Vertex &v) {
-  stream >> v.x;
-  stream >> v.y;
-  stream >> v.z;
+  v.x = readFloat(stream);
+  v.y = readFloat(stream);
+  v.z = readFloat(stream);
   return stream;
 }
 

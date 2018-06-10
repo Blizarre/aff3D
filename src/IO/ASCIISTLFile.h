@@ -10,7 +10,7 @@
 
 class ASCIISTLFile : public FileParser {
 public:
-  ASCIISTLFile(std::ifstream &data) { parse(data); }
+  ASCIISTLFile(std::istream &data) { parse(data); }
 
   virtual const std::vector<Triangle> triangles() { return _triangles; }
   virtual const std::string description() { return _description; }

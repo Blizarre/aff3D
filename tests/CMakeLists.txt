@@ -7,7 +7,7 @@ find_package(SDL2 REQUIRED)
 
 link_libraries (${SDL2_LIBRARIES} pthread)
 
-include_directories(../include googletest/include googletest)
+include_directories(../include googletest/include ../src ../src/IO ../include/IO googletest)
 include_directories()
 file( GLOB
     sources

@@ -28,8 +28,12 @@
 
 typedef unsigned char u8;
 
+//TODO: refactor this Triangle class to not expose the points directly
+//and have a clear difference between points and normal
+
 class Triangle {
 public:
+  // point 0,1 and 2 are the vertexes of the triangle, while 4 is the normal
   std::array<Vertex, 4> points;
   u8 r, g, b;
 
