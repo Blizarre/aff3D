@@ -59,7 +59,6 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
         dataFile >> word;
         expectKeyword("normal", word);
         dataFile >> vertexIgnored;
-        vertexIgnored.normer();
         state = State::OUTER_LOOP;
       }
       break;
@@ -79,7 +78,7 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
       expectKeyword("vertex", word);
       dataFile >> vertex3;
       _triangles.push_back(
-          Triangle(vertex1, vertex2, vertex3, vertexIgnored, 0, 0, 255));
+          Triangle(vertex1, vertex2, vertex3));
       state = State::END_LOOP;
       break;
     case State::END_LOOP:
