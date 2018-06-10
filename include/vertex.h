@@ -42,6 +42,10 @@ public:
   Vertex operator-(const Vertex v);
   Vertex operator/(const float f);
 
+  bool operator==(const Vertex& other) const {
+    return x == other.x && y == other.y && z == other.z;
+  }
+
   float norm();
   void normer();
 };

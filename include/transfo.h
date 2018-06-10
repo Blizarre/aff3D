@@ -42,8 +42,6 @@ public:
     auto itNew = newArray.begin();
 
     for (; itOrig != originalArray.cend(); ++itOrig, ++itNew) {
-      // Push_back is not really the best way to do this.
-      // We'll see if it makes a difference in the benchmark
       applyTo(*itOrig, *itNew);
     }
   };

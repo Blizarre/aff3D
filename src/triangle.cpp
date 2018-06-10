@@ -15,4 +15,17 @@ float Triangle::sumOfDistances() const {
 
 void Triangle::applyTransformation(const Transformation &tr) {
   tr.applyTo(m_rawData, points);
+  tr.applyTo(m_normal, normal);
 }
+
+Vertex Triangle::computeNormal(Vertex& a, Vertex& b, Vertex& c) {
+  Vertex u = b - a;
+  Vertex v = c - a;
+
+  return Vertex {
+    u.y * v.z - u.z * v.y,
+    u.z * v.x - u.x * v.z,
+    u.x - v.y - u.y * v.x
+  };
+}
+

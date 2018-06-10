@@ -1,10 +1,22 @@
 #include "ASCIISTLFile.h"
 
+#include <string>
+
+float readFloat(std::istream &is) {
+  float f;
+  if(! (is >> f)) {
+    throw ParseError(
+        std::string("Invalid floating point number detected at position ")
+        + std::to_string(is.tellg()));
+   }
+  return f;
+}
+
 // De-serialisation primitive
 std::istream &operator>>(std::istream &stream, Vertex &v) {
-  stream >> v.x;
-  stream >> v.y;
-  stream >> v.z;
+  v.x = readFloat(stream);
+  v.y = readFloat(stream);
+  v.z = readFloat(stream);
   return stream;
 }
 
@@ -47,7 +59,6 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
         dataFile >> word;
         expectKeyword("normal", word);
         dataFile >> vertexIgnored;
-        vertexIgnored.normer();
         state = State::OUTER_LOOP;
       }
       break;
@@ -67,7 +78,7 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
       expectKeyword("vertex", word);
       dataFile >> vertex3;
       _triangles.push_back(
-          Triangle(vertex1, vertex2, vertex3, vertexIgnored, 0, 0, 255));
+          Triangle(vertex1, vertex2, vertex3));
       state = State::END_LOOP;
       break;
     case State::END_LOOP:
