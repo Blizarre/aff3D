@@ -1,7 +1,7 @@
 #include "vertex.h"
 
 // element-wise multiply
-Vertex Vertex::operator*(const Vertex v) {
+Vertex Vertex::operator*(const Vertex& v) {
   float x2, y2, z2;
   x2 = v.x * this->x;
   y2 = v.y * this->y;
@@ -10,12 +10,16 @@ Vertex Vertex::operator*(const Vertex v) {
 }
 
 // element-wise substraction
-Vertex Vertex::operator-(const Vertex v) {
+Vertex Vertex::operator-(const Vertex& v) {
   float x2, y2, z2;
   x2 = this->x - v.x;
   y2 = this->y - v.y;
   z2 = this->z - v.z;
   return Vertex(x2, y2, z2);
+}
+
+float Vertex::dot(const Vertex& v) {
+    return x * v.x + y * v.y + z * v.z;
 }
 
 // element-wise division
