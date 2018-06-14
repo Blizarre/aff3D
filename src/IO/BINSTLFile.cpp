@@ -10,10 +10,10 @@ template <typename T> T read(std::istream &is) {
   T token;
   is.read(reinterpret_cast<char *>(&token), size);
   if (is.eof()) {
-    throw new ParseError(std::string("End of File reached @") +
+    throw ParseError(std::string("End of File reached @") +
                          std::to_string(is.tellg()));
   } else if (is.fail()) {
-    throw new ParseError("Error reading the file");
+    throw ParseError("Error reading the file");
   }
   return token;
 }
