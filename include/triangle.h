@@ -25,7 +25,7 @@
 #include "transfo.h"
 #include "vertex.h"
 #include <array>
-#include "Normal.hpp"
+#include "normal.hpp"
 
 typedef unsigned char u8;
 

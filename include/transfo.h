@@ -30,7 +30,7 @@ public:
 
   Vertex applyTo(const Vertex &v) const;
   Normal applyTo(const Normal &n) const;
-  void Transformation::applyTo(const Vertex &vIn, Vertex &vOut) const;
+  void applyTo(const Vertex &vIn, Vertex &vOut) const;
 
   /***
     * Apply the transformation to all elements of the array (size N).
