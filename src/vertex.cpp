@@ -1,7 +1,7 @@
 #include "vertex.h"
 
 // element-wise multiply
-Vertex Vertex::operator*(const Vertex& v) {
+Vertex Vertex::operator*(const Vertex& v) const {
   float x2, y2, z2;
   x2 = v.x * this->x;
   y2 = v.y * this->y;
@@ -10,7 +10,7 @@ Vertex Vertex::operator*(const Vertex& v) {
 }
 
 // element-wise substraction
-Vertex Vertex::operator-(const Vertex& v) {
+Vertex Vertex::operator-(const Vertex& v) const {
   float x2, y2, z2;
   x2 = this->x - v.x;
   y2 = this->y - v.y;
@@ -18,28 +18,11 @@ Vertex Vertex::operator-(const Vertex& v) {
   return Vertex(x2, y2, z2);
 }
 
-float Vertex::dot(const Vertex& v) {
-    return x * v.x + y * v.y + z * v.z;
-}
-
 // element-wise division
-Vertex Vertex::operator/(const float f) {
+Vertex Vertex::operator/(const float f) const {
   float x2, y2, z2;
   x2 = this->x / f;
   y2 = this->y / f;
   z2 = this->z / f;
   return Vertex(x2, y2, z2);
-}
-
-// normalization in place
-void Vertex::normInPlace() {
-  float n = this->norm();
-  this->x /= n;
-  this->y /= n;
-  this->z /= n;
-}
-
-// return the norm of the vector
-float Vertex::norm() {
-  return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
 }

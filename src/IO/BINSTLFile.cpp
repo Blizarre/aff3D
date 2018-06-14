@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include "normal.hpp"
 
 template <typename T> T read(std::istream &is) {
   // TODO: Handle little/big endian. This code assume same endianness
@@ -50,11 +51,11 @@ void BINSTLFile::parse(std::istream &dataFile) {
   szTriangles = read<uint32_t>(dataFile);
   std::cout << "Number of triangles " << szTriangles << std::endl;
   for (uint32_t i = 0; i < szTriangles; i++) {
-    Vertex norm = readVertex(dataFile);
+    Normal norm = static_cast<Normal>(readVertex(dataFile));
     Vertex a = readVertex(dataFile);
     Vertex b = readVertex(dataFile);
     Vertex c = readVertex(dataFile);
     readu16(dataFile);
-    _triangles.push_back(Triangle(a, b, c, norm, 0, 0, 255));
+    _triangles.push_back(Triangle{ a, b, c, norm, 0, 0, 255 });
   }
 }

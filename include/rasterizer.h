@@ -23,6 +23,7 @@
 #include "SDLWrapper.h"
 #include "triangle.h"
 #include "vertex.h"
+#include "normal.hpp"
 
 // It is the projection of a Vertex. in the screen space.
 struct Point {
@@ -89,7 +90,7 @@ public:
                             bool isWireFrame);
 
   // Draw a triangle on the screen
-  void drawTriangle(const Triangle &t, bool isWireFrame);
+  void drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame);
 
 protected:
   SurfaceWrapper &m_surface;

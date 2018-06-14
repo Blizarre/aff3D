@@ -80,10 +80,9 @@ void Rasterizer::trimXValues(int &val1, int &val2) {
 * TODO: This code should be refactored. For now it is used as a blackbox
 * TODO: light origin should be a parameter
 **/
-void Rasterizer::drawTriangle(const Triangle &t, bool isWireFrame) {
+void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame) {
   // TODO: code reuse between the two halves
-  Vertex lightPoint(0.5574f, 0.5574f, 0.5574f);
-  float lightCoeff = lightPoint.dot(t.normal);
+  float lightCoeff = lightSource.dot(t.normal);
 
   lightCoeff = (lightCoeff > 0 ? lightCoeff : 0);
 

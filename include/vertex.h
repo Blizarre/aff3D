@@ -38,11 +38,9 @@ public:
       : x(_x), y(_y), z(_z) {}
   Vertex(const Vertex &v) : x(v.x), y(v.y), z(v.z) {}
 
-  Vertex operator*(const Vertex& v);
-  Vertex operator-(const Vertex& v);
-  Vertex operator/(const float f);
-
-  float dot(const Vertex& other);
+  Vertex operator*(const Vertex& v) const;
+  Vertex operator-(const Vertex& v) const;
+  Vertex operator/(const float f) const;
 
   /*
     Equality operator: Only works on EXACT matches. More useful for tests
@@ -50,9 +48,6 @@ public:
   bool operator==(const Vertex& other) const {
     return x == other.x && y == other.y && z == other.z;
   }
-
-  float norm();
-  void normInPlace();
 };
 
 #endif

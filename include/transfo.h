@@ -1,12 +1,11 @@
-#ifndef __TRANSFO_H__256000111
-
-#define __TRANSFO_H__256000111
+#pragma once
 
 #include <algorithm>
 #include <array>
 #include <vector>
 
 #include "vertex.h"
+#include "normal.hpp"
 
 class Transformation {
 
@@ -30,14 +29,15 @@ public:
   void rotationZ(const float rot);
 
   Vertex applyTo(const Vertex &v) const;
-  void applyTo(const Vertex &vIn, Vertex &vOut) const;
+  Normal applyTo(const Normal &n) const;
+  void Transformation::applyTo(const Vertex &vIn, Vertex &vOut) const;
 
   /***
-   * Apply the transformation to all elements of the array (size N).
+    * Apply the transformation to all elements of the array (size N).
   ***/
-  template <size_t N>
-  void applyTo(const std::array<Vertex, N> &originalArray,
-               std::array<Vertex, N> &newArray) const {
+  template <typename Type, size_t N>
+  void applyTo(const std::array<Type, N> &originalArray,
+    std::array<Type, N> &newArray) const {
     auto itOrig = originalArray.cbegin();
     auto itNew = newArray.begin();
 
@@ -49,5 +49,3 @@ public:
 protected:
   std::array<float, 16> m_matrix;
 };
-
-#endif

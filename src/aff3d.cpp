@@ -34,7 +34,7 @@
 #include "triangle.h"
 #include "vertex.h"
 #include "chronometer.hpp"
-
+#include "normal.hpp"
 #include "stdlib.h"
 #include "utils.h"
 
@@ -132,6 +132,8 @@ int main(int argc, char *argv[]) {
   sdl.onKeyPress(SDLK_b, [&backfaceC]() { backfaceC = !backfaceC; });
   sdl.onKeyPress(SDLK_q, [&autoAnimate]() { autoAnimate = !autoAnimate; });
 
+  Normal lightSource = Normal{ 0, 0, 1 };
+  lightSource.normInPlace();
 
   while (!shouldQuit) {
     Uint32 startRenderFrame = sdl.getTicks();
@@ -181,7 +183,7 @@ int main(int argc, char *argv[]) {
       // triangle to check if it is facing the camera
       if (backfaceC || tr.isFacingCamera()) {
         drawnTriangleCount++;
-        rasterizer.drawTriangle(tr, isWireframe);
+        rasterizer.drawTriangle(tr, lightSource, isWireframe);
       }
     }
     chrRaster.addTimeSince(chrSort.lastEndTime());

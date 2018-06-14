@@ -25,6 +25,7 @@
 #include "transfo.h"
 #include "vertex.h"
 #include <array>
+#include "Normal.hpp"
 
 typedef unsigned char u8;
 
@@ -39,12 +40,12 @@ public:
   // original data points, without transformation
   std::array<Vertex, 3> origPoints;
 
-  Vertex normal;
+  Normal normal;
   u8 r, g, b;
 
   Triangle() : r(0), g(0), b(0) {}
 
-  Triangle(Vertex a, Vertex b, Vertex c, Vertex n) {
+  Triangle(Vertex a, Vertex b, Vertex c, Normal n) {
     origPoints[0] = a;
     origPoints[1] = b;
     origPoints[2] = c;
@@ -60,7 +61,7 @@ public:
     origPoints[0] = a;
     origPoints[1] = b;
     origPoints[2] = c;
-    origNormal = computeNormal(a, b, c);
+    origNormal = Normal{ a, b, c };
     origNormal.normInPlace();
 
     points = origPoints; // copy the rawData to initialize points
@@ -70,7 +71,7 @@ public:
     this->b = 255;
   }
 
-  Triangle(Vertex a, Vertex b, Vertex c, Vertex n, u8 cr, u8 cg, u8 cb) {
+  Triangle(Vertex a, Vertex b, Vertex c, Normal n, u8 cr, u8 cg, u8 cb) {
     origPoints[0] = a;
     origPoints[1] = b;
     origPoints[2] = c;
@@ -85,10 +86,9 @@ public:
   void applyTransformation(const Transformation &tr);
   float sumOfDistances() const;
   bool isFacingCamera() const;
-  Vertex computeNormal(Vertex& a, Vertex& b, Vertex& c);
 
 protected:
-  Vertex origNormal;
+  Normal origNormal;
 };
 
 #endif
