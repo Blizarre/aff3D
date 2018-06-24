@@ -75,7 +75,6 @@ int main(int argc, char *argv[]) {
 
   bool shouldQuit = false;
   unsigned int initTime = 0;
-  int sleep;
   bool scramble = false, isWireframe = false, backfaceC = false;
 
   bool autoAnimate = false;
@@ -135,19 +134,23 @@ int main(int argc, char *argv[]) {
   Normal lightSource = Normal{ 0, 0, 1 };
   lightSource.normInPlace();
 
+  Uint32 lastStartRenderStep = 0;
+
   while (!shouldQuit) {
-    Uint32 startRenderFrame = sdl.getTicks();
+    Uint32 startRenderStep = sdl.getTicks();
 
     if (benchmarkMode && frameCount >= 2000)
       break; // in benchmark mode, exit after 2000 frames
 
     drawnTriangleCount = 0;
     if (!benchmarkMode) {
-      sleep = 24 - (sdl.getTicks() - startRenderFrame);
+      int sleep = 24 - (startRenderStep - lastStartRenderStep);
       SDL_Delay((sleep > 0 ? sleep : 1));
     }
+    lastStartRenderStep = startRenderStep;
 
-    chrWait.addTimeSince(startRenderFrame);
+    chrWait.addTimeSince(startRenderStep);
+
 
     screen.fill(50, 50, 50);
     chrFillScreen.addTimeSince(chrWait.lastEndTime());
@@ -157,8 +160,8 @@ int main(int argc, char *argv[]) {
     transfo.translate({ 0, 0, 3 });
 
     if (autoAnimate) {
-      transfo.rotationX(startRenderFrame/ 6000.0f);
-      transfo.rotationZ(startRenderFrame / 50000.0f);
+      transfo.rotationX(startRenderStep/ 6000.0f);
+      transfo.rotationZ(startRenderStep / 50000.0f);
     } else {
       transfo.rotationX(rotX);
       transfo.rotationZ(rotY);
@@ -174,7 +177,6 @@ int main(int argc, char *argv[]) {
     // the back to the front.
     std::sort(vectTriangle.begin(), vectTriangle.end(), compareTriangleZ);
     chrSort.addTimeSince(chrTransform.lastEndTime());
-
 
     screen.lockSurface();
 
