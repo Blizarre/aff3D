@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
   try {
     vectTriangle = readFromFile(argv[1]);
-  } catch (runtime_error &e) {
+  } catch (ParseError &e) {
     cerr << "Couldn't read data from file" << endl;
     cerr << "Message: " << e.what();
     return EXIT_FAILURE;
