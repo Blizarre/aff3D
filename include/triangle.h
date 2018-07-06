@@ -34,6 +34,9 @@ typedef unsigned char u8;
 
 class Triangle {
 public:
+  // TOOO: reduce cache miss and create Triangles class with stream of vertex
+  // and would allow to replace ppor decision of origPoint and point
+
   // point 0,1 and 2 are the vertexes of the triangle, while 4 is the normal
   std::array<Vertex, 3> points;
 
@@ -41,9 +44,9 @@ public:
   std::array<Vertex, 3> origPoints;
 
   Normal normal;
-  u8 r, g, b;
+  u8 r{0}, g{0}, b{255};
 
-  Triangle() : r(0), g(0), b(0) {}
+  Triangle() = default;
 
   Triangle(Vertex a, Vertex b, Vertex c, Normal n) {
     origPoints[0] = a;
@@ -52,9 +55,6 @@ public:
     origNormal = n;
     normal = origNormal;
     points = origPoints; // copy the rawData to initialize points
-    this->r = 0;
-    this->g = 0;
-    this->b = 255;
   }
 
   Triangle(Vertex a, Vertex b, Vertex c) {
@@ -66,9 +66,6 @@ public:
 
     points = origPoints; // copy the rawData to initialize points
     normal = origNormal;
-    this->r = 0;
-    this->g = 0;
-    this->b = 255;
   }
 
   Triangle(Vertex a, Vertex b, Vertex c, Normal n, u8 cr, u8 cg, u8 cb) {
