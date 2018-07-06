@@ -3,6 +3,8 @@ project(Aff3D)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_CXX_STANDARD 14)
+
 find_package(SDL2 REQUIRED)
 
 link_libraries (${SDL2_LIBRARIES})
@@ -16,8 +18,8 @@ file( GLOB
 
 include_directories(${SDL2_INCLUDE_DIR})
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++14")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
 endif()
 
 ADD_EXECUTABLE(aff3D ${sources})
