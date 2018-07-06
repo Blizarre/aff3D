@@ -15,3 +15,14 @@ float Normal::norm() const {
 float Normal::dot(const Normal& v) const {
     return x * v.x + y * v.y + z * v.z;
 }
+
+Normal::Normal(const Vertex &a, const Vertex &b, const Vertex &c) {
+  Normal u = static_cast<Normal>(b - a);
+  Normal v = static_cast<Normal>(c - a);
+
+  x = u.y * v.z - u.z * v.y;
+  y = u.z * v.x - u.x * v.z;
+  z = u.x * v.y - u.y * v.x;
+
+  normInPlace();
+}
