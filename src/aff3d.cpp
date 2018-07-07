@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
 
     transfo = Transformation();
 
-    transfo.translate({ 0, 0, 3 });
+    transfo.translate({ 0, 0, 2 });
 
     if (autoAnimate) {
       transfo.rotationX(startRenderStep/ 6000.0f);
