@@ -35,10 +35,7 @@ struct Point {
 };
 
 /*
-        This class will draw triangles on a Surface. Since I didn't wanted to
-   use [smart-]pointers
-        as a challenge, the Rasterizer holds a "weak" reference to the
-   SurfaceWrapper.
+   This class will draw triangles on a Surface.
 */
 class Rasterizer {
 public:
