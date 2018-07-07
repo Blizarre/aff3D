@@ -3,7 +3,7 @@ service:
   - docker
 before_install:
   - docker pull ubuntu:trusty
-  - docker run -v $(pwd):/opt/aff3d --name build -d ubuntu:xenial sleep infinity
+  - docker run -v $(pwd):/opt/aff3d --rm --name build -d ubuntu:xenial sleep infinity
 install:
   - docker exec build apt update
   - docker exec build apt install -y cmake libsdl2-dev g++
@@ -11,4 +11,7 @@ install:
   - docker exec build sh -c 'sed -i "s/-lSDL2 /-lSDL2/" /usr/lib/*/cmake/SDL2/sdl2-config.cmake'
 script:
   - docker exec build sh -c 'cd /opt/aff3d && mkdir build && cd build && cmake .. && make'
+  - docker exec build sh -c 'cd /opt/aff3d/tests && ./runTests.sh'
+after_script:
+  - docker stop build
 language: c++
