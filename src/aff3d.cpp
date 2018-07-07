@@ -68,6 +68,8 @@ bool compareTriangleZ(const Triangle &d1, const Triangle &d2) {
   return d1.sumOfDistances() < d2.sumOfDistances();
 }
 
+// unit tests have their own main.
+#ifndef UNIT_TESTS
 // TODO: refactor the function, create a wrapper class for the rendering loop
 int main(int argc, char *argv[]) {
   vector<Triangle> vectTriangle;
@@ -214,3 +216,4 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+#endif
