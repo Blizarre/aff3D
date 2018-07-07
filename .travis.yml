@@ -6,7 +6,7 @@ before_install:
   - docker run -v $(pwd):/opt/aff3d --rm --name build -d ubuntu:xenial sleep infinity
 install:
   - docker exec build apt update
-  - docker exec build apt install -y cmake libsdl2-dev g++
+  - docker exec build apt install -y cmake libsdl2-dev g++ curl
     # fix bug in the cmake SDL2 config: trailing space that is now forbidden
   - docker exec build sh -c 'sed -i "s/-lSDL2 /-lSDL2/" /usr/lib/*/cmake/SDL2/sdl2-config.cmake'
 script:
