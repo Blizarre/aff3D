@@ -3,7 +3,8 @@
 // TODO: Create line Object
 
 // sort 2 numbers
-inline void sort(int &a, int &b) {
+template <typename T>
+inline void sort2(T &a, T &b) {
   if (a > b)
     std::swap(a, b);
 }
@@ -22,12 +23,11 @@ inline void widen(int &min, int &max) {
 */
 inline void Rasterizer::drawLineNoBoundCheck(int x1, int x2, int y,
                                              Uint32 color, bool isWireFrame) {
-
   if (isWireFrame) {
     m_surface.pixel(x1, y) = color;
     m_surface.pixel(x2, y) = color;
   } else {
-    sort(x1, x2);
+    sort2(x1, x2);
     widen(x1, x2);
     Uint32 *startPosition = &m_surface.pixel(x1, y);
     Uint32 *endPosition = &m_surface.pixel(x2, y);
@@ -48,7 +48,7 @@ inline void Rasterizer::drawLine(int x1, int x2, int y, Uint32 color,
       m_surface.pixel(x1, y) = color;
       m_surface.pixel(x2, y) = color;
     } else {
-      sort(x1, x2);
+      sort2(x1, x2);
       widen(x1, x2);
       trimXValues(x1, x2);
       Uint32 *startPosition = &m_surface.pixel(x1, y);
