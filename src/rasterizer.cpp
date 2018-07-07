@@ -78,7 +78,6 @@ void Rasterizer::trimXValues(int &val1, int &val2) {
 * - the first half of the triangle is drawn (top point to the middle point)
 * - and finally the bottom part of the triangle is drawn
 * TODO: This code should be refactored. For now it is used as a blackbox
-* TODO: light origin should be a parameter
 **/
 void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame) {
   // TODO: code reuse between the two halves
