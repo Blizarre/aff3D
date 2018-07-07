@@ -2,7 +2,7 @@
 #include "math.h"
 
 void Transformation::translate(const float delta[3]) {
-  this->m_matrix[3] +=
+  m_matrix[3] +=
       m_matrix[0] * delta[0] + m_matrix[1] * delta[1] + m_matrix[2] * delta[2];
   m_matrix[7] +=
       m_matrix[4] * delta[0] + m_matrix[5] * delta[1] + m_matrix[6] * delta[2];
@@ -13,11 +13,6 @@ void Transformation::translate(const float delta[3]) {
 void Transformation::translate(const std::array<float, 3>& delta) {
   translate(delta.data());
 }
-
-/**
- *Attention, les matrices sont des 4x4 !!! Il y a une ligne et une colonne dont
- *les valeurs sont indispensables aux calculs
- **/
 
 /**
  * 1    0       0
@@ -108,7 +103,7 @@ Vertex Transformation::applyTo(const Vertex &v) const {
   return Vertex(nx, ny, nz);
 }
 
-// For normals we can ignore w
+// For normals we must ignore w
 Normal Transformation::applyTo(const Normal &n) const {
     float nx, ny, nz;
 
