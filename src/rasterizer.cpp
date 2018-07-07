@@ -1,4 +1,6 @@
 #include "rasterizer.h"
+#include <cassert>
+
 
 // TODO: Create line Object
 
@@ -9,66 +11,62 @@ inline void sort2(T &a, T &b) {
     std::swap(a, b);
 }
 
-// add one pixel at the left and right of the line to fill gaps between
-// triangles
-inline void widen(int &min, int &max) {
-  min--;
-  max++;
-}
 
-/*
- Draw the horizontal line between the two points x1 and x2 at height y. Doesn't
- make any boundary check: if x1, x2 or y is invalid,
- memory will be written at an invalid location
-*/
-inline void Rasterizer::drawLineNoBoundCheck(int x1, int x2, int y,
-                                             Uint32 color, bool isWireFrame) {
-  if (isWireFrame) {
-    m_surface.pixel(x1, y) = color;
-    m_surface.pixel(x2, y) = color;
-  } else {
-    sort2(x1, x2);
-    widen(x1, x2);
-    Uint32 *startPosition = &m_surface.pixel(x1, y);
-    Uint32 *endPosition = &m_surface.pixel(x2, y);
-    std::fill(startPosition, endPosition, color);
+// Sort three points along their y component
+void sortInPlace(Point pt[]) {
+  if (pt[1].y < pt[0].y) {
+    std::swap(pt[0], pt[1]);
+  }
+
+  if (pt[2].y < pt[1].y) {
+    std::swap(pt[1], pt[2]);
+  }
+
+  if (pt[1].y < pt[0].y) {
+    std::swap(pt[0], pt[1]);
   }
 }
 
 /*
-Draw the horizontal line between the two points x1 and x2 at height y. Make a
-boundary check: if x1, x2 is invalid,
-draw only the visible portion of the line. if y is invalid, does not write
-anything.
+ * Draw the horizontal line between the two points start and end at height y. Make a
+ *
+ * boundary check: draw only the visible part of the line, check start, end and y
+ * preconditions: start <= end
 */
-inline void Rasterizer::drawLine(int x1, int x2, int y, Uint32 color,
+inline void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
                                  bool isWireFrame) {
-  if (isInRangeY(y)) {
+  assert(start <= end);
+  if (isInRangeY(y) && isLineInRangeX(start, end)) {
+    // TODO: drawWireframe should be a separate function
     if (isWireFrame) {
-      m_surface.pixel(x1, y) = color;
-      m_surface.pixel(x2, y) = color;
+      m_surface.pixel(start, y) = color;
+      m_surface.pixel(end, y) = color;
     } else {
-      sort2(x1, x2);
-      widen(x1, x2);
-      trimXValues(x1, x2);
-      Uint32 *startPosition = &m_surface.pixel(x1, y);
-      Uint32 *endPosition = &m_surface.pixel(x2, y);
+      trimXValues(start, end);
+      Uint32 *startPosition = &m_surface.pixel(start, y);
+      Uint32 *endPosition = &m_surface.pixel(end, y);
       std::fill(startPosition, endPosition, color);
     }
   }
 }
 
-void Rasterizer::trimXValues(int &val1, int &val2) {
-  // TODO: use the fact that val1 < val2
-  if (val1 < 0)
-    val1 = 0;
-  else if (val1 >= m_surface.getWidth())
-    val1 = m_surface.getWidth() - 1;
+/**
+ * Clamp start and end so that they fit inside [0, m_surface.getWidth()[
+ * preconditions:
+ *  - start <= end
+ *  - the line [start, end] has at least one pixel inside [0, m_surface.getWidth()[
+ **/
+void Rasterizer::trimXValues(int &start, int &end) {
+  assert(start <= end);
+  assert(! (start >= m_surface.getWidth() && end >= m_surface.getWidth()));
+  assert(! (start < 0 && end < 0));
 
-  if (val2 < 0)
-    val2 = 0;
-  else if (val2 >= m_surface.getWidth())
-    val2 = m_surface.getWidth() - 1;
+  if (start < 0) {
+    start = 0;
+  }
+  if (end >= m_surface.getWidth()) {
+    end = m_surface.getWidth() - 1;
+  }
 }
 
 /**
@@ -91,20 +89,13 @@ void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWir
 
   Point tP[3];
 
-  bool isFullyDrawn = true;
   bool isNotDrawn = true;
 
   for (int v = 0; v < 3; v++) {
     projectToScreen(t.points[v], tP[v]);
-    if (tP[v].isInRange(1, m_surface.getWidth() - 1, 0,
-                        m_surface.getHeight())) // one pixel is added at the
-                                                // left and right of every line
-                                                // to fill gaps between
-                                                // triangles.
+    if (tP[v].isInRange(1, m_surface.getWidth() - 1, 0, m_surface.getHeight()))
     {
       isNotDrawn = false;
-    } else {
-      isFullyDrawn = false;
     }
   }
 
@@ -117,54 +108,48 @@ void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWir
   float a1, a2;
   int yP;
 
-  if (tP[2].y > 0) {
-    yP = 0;
-    if (tP[0].y == tP[2].y && tP[0].y > 0 &&
-        tP[0].y < m_surface.getHeight() - 1) {
-      drawLine(tP[0].x, tP[2].x, tP[0].y, color, isWireFrame);
-    } else {
-      a1 = (tP[0].x - tP[2].x) / ((float)tP[0].y - tP[2].y);
-      a2 = (tP[1].x - tP[2].x) / ((float)tP[1].y - tP[2].y);
-      for (int y = tP[2].y; y > tP[1].y; y--) {
-        x1 = (int)(-a1 * yP);
-        x2 = (int)(-a2 * yP);
+  yP = 0;
+  if (tP[0].y == tP[2].y && tP[0].y > 0 &&
+      tP[0].y < m_surface.getHeight() - 1) {
+    x1 = tP[0].x;
+    x2 = tP[2].x;
+    sort2(x1, x2);
+    drawLine(x1 -1, x2, tP[0].y, color, isWireFrame);
+  } else {
+    a1 = (tP[0].x - tP[2].x) / ((float)tP[0].y - tP[2].y);
+    a2 = (tP[1].x - tP[2].x) / ((float)tP[1].y - tP[2].y);
+    for (int y = tP[2].y; y > tP[1].y; y--) {
+      x1 = (int)(-a1 * yP) + tP[2].x;
+      x2 = (int)(-a2 * yP) + tP[2].x;
+      sort2(x1, x2);
+      // TODO: implement proper triangle join
+      // all lines are widened by 1 px on the left to make sure all trangles are joined
+      drawLine(x1 - 1, x2, y, color, isWireFrame);
 
-        if (isFullyDrawn)
-          drawLineNoBoundCheck(x1 + tP[2].x, x2 + tP[2].x, y, color,
-                               isWireFrame);
-        else
-          drawLine(x1 + tP[2].x, x2 + tP[2].x, y, color, isWireFrame);
-
-        yP++;
-      }
+      yP++;
     }
-  } else // if this point's height is < 0, then it will be the same for all the
-         // others
-  {
-    return;
   }
 
-  if (tP[1].y > 0) {
-    yP = 0;
-    if (tP[0].y == tP[1].y && tP[0].y > 0 &&
-        tP[0].y < m_surface.getHeight() - 1) {
-      drawLine(tP[0].x, tP[1].x, tP[0].y, color, isWireFrame);
-    } else {
-      a1 = (tP[1].x - tP[0].x) / ((float)tP[1].y - tP[0].y);
-      a2 = (tP[2].x - tP[0].x) / ((float)tP[2].y - tP[0].y);
+  yP = 0;
+  if (tP[0].y == tP[1].y && tP[0].y > 0 &&
+      tP[0].y < m_surface.getHeight() - 1) {
+    x1 = tP[0].x;
+    x2 = tP[1].x;
+    sort2(x1, x2);
+    drawLine(x1 -1, x2, tP[0].y, color, isWireFrame);
+  } else {
+    a1 = (tP[1].x - tP[0].x) / ((float)tP[1].y - tP[0].y);
+    a2 = (tP[2].x - tP[0].x) / ((float)tP[2].y - tP[0].y);
 
-      for (int y = tP[0].y; y <= tP[1].y; y++) {
-        x1 = (int)(a1 * yP);
-        x2 = (int)(a2 * yP);
+    for (int y = tP[0].y; y <= tP[1].y; y++) {
+      x1 = (int)(a1 * yP) + tP[0].x;
+      x2 = (int)(a2 * yP) + tP[0].x;
+      // TODO: implement proper system
+      // all lines are widened by 1 px on the lst to make sure all trangles are joined
+      sort2(x1, x2);
+      drawLine(x1 - 1, x2, y, color, isWireFrame);
 
-        if (isFullyDrawn)
-          drawLineNoBoundCheck(x1 + tP[0].x, x2 + tP[0].x, y, color,
-                               isWireFrame);
-        else
-          drawLine(x1 + tP[0].x, x2 + tP[0].x, y, color, isWireFrame);
-
-        yP++;
-      }
+      yP++;
     }
   }
 }

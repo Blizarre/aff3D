@@ -62,27 +62,6 @@ public:
     pt.y = (int)((i.y/i.z + 0.5) * m_surface.getHeight());
   }
 
-  // Sort three points along their y component
-  void sortInPlace(Point pt[]) {
-    Point tmp;
-    if (pt[1].y < pt[0].y) {
-      tmp = pt[0];
-      pt[0] = pt[1];
-      pt[1] = tmp;
-    }
-
-    if (pt[2].y < pt[1].y) {
-      tmp = pt[1];
-      pt[1] = pt[2];
-      pt[2] = tmp;
-    }
-
-    if (pt[1].y < pt[0].y) {
-      tmp = pt[0];
-      pt[0] = pt[1];
-      pt[1] = tmp;
-    }
-  }
 
   // Draw a line on the Surface. x1 and x2 can be both outside the screen range
   void drawLine(int x1, int x2, int y, Uint32 color, bool isWireFrame);
@@ -100,6 +79,8 @@ protected:
   // val1 < val2 must be true
   void trimXValues(int &val1, int &val2);
 
-  bool isInRangeY(int y) { return y > 0 && y < m_surface.getHeight() - 1; }
-  bool isInRangeX(int x) { return x > 0 && x < m_surface.getWidth() - 1; }
+  bool isInRangeY(int y) { return y >= 0 && y < m_surface.getHeight(); }
+  bool isInRangeX(int x) { return x >= 0 && x < m_surface.getWidth(); }
+  bool isLineInRangeX(int start, int end) { return start < m_surface.getWidth() && end > 0; }
+
 };
