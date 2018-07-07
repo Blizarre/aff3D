@@ -2,7 +2,7 @@
 
 set -e
 
-cd "$(basename "$0")"
+cd "$(dirname "$0")"
 
 curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar -zx --strip-components=1  googletest-release-1.8.0/googletest/
 mkdir -p build
