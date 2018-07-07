@@ -40,8 +40,8 @@
 
 using namespace std;
 
-const Uint32 screenWidth = 640;
-const Uint32 screenHeight = 640;
+const Uint32 screenWidth = 1024;
+const Uint32 screenHeight = 1024;
 
 vector<Triangle> readFromFile(const string &fileName) {
   auto parser = FileParser::getParser(fileName);
