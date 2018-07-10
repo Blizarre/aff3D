@@ -34,7 +34,7 @@
 #include "triangle.h"
 #include "vertex.h"
 #include "chronometer.hpp"
-#include "normal.hpp"
+#include "normal.h"
 #include "stdlib.h"
 #include "utils.h"
 

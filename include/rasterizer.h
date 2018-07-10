@@ -23,7 +23,7 @@
 #include "SDLWrapper.h"
 #include "triangle.h"
 #include "vertex.h"
-#include "normal.hpp"
+#include "normal.h"
 
 // It is the projection of a Vertex. in the screen space.
 struct Point {

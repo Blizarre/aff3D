@@ -1,4 +1,4 @@
-#include <normal.hpp>
+#include "normal.h"
 
 void Normal::normInPlace() {
     float n = this->norm();
