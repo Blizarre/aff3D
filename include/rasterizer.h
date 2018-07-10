@@ -43,17 +43,8 @@ struct Point {
 class Rasterizer {
 public:
   // Create a new Rasterizer from the surface. Holds a weak reference to this
-  // surface. Do not let it out of scope !
-  // TODO: use a smarter pointer
+  // surface.
   Rasterizer(SurfaceWrapper &surface) : m_surface(surface) {}
-
-  // we simply "Steal" the reference of the other Rasterizer
-  Rasterizer(const Rasterizer &other) : m_surface(other.m_surface) {}
-
-  Rasterizer &operator=(const Rasterizer &other) {
-    m_surface = other.m_surface;
-    return *this;
-  }
 
   // Project the vertex in the screen space. the view is centered around 0 in x
   // and y thanks to the +0.5.
@@ -82,5 +73,4 @@ protected:
   bool isInRangeY(int y) { return y >= 0 && y < m_surface.getHeight(); }
   bool isInRangeX(int x) { return x >= 0 && x < m_surface.getWidth(); }
   bool isLineInRangeX(int start, int end) { return start < m_surface.getWidth() && end > 0; }
-
 };
