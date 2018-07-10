@@ -44,10 +44,10 @@ public:
   Rasterizer(SurfaceWrapper &surface) : m_surface(surface) {}
 
   // Project the vertex in the screen space. the view is centered around 0 in x
-  // and y thanks to the +0.5. The division by z enable perspective.
+  // and y thanks to the +0.5.
   void projectToScreen(const Vertex &i, Point &pt) {
-    pt.x = (int)((i.x/i.z + 0.5) * m_surface.getWidth());
-    pt.y = (int)((i.y/i.z + 0.5) * m_surface.getHeight());
+    pt.x = (int)((i.x + 0.5) * m_surface.getWidth());
+    pt.y = (int)((i.y + 0.5) * m_surface.getHeight());
   }
 
 
@@ -59,7 +59,7 @@ public:
   void drawLine(int start, int end, int y, Uint32 color, bool isWireFrame);
 
   // Draw a triangle on the screen
-  void drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame);
+  void drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame, bool backFaceCulling);
 
 protected:
   SurfaceWrapper &m_surface;

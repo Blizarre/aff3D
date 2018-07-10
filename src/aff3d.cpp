@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
   bool autoAnimate = false;
   bool benchmarkMode = false;
 
-  int drawnTriangleCount = 0, frameCount = 0;
+  int frameCount = 0;
   if (argc < 2) {
     cout << "Usage : " << argv[0] << " <stl file> [/benchmark]" << endl;
     return EXIT_FAILURE;
@@ -131,7 +131,6 @@ int main(int argc, char *argv[]) {
     if (benchmarkMode && frameCount >= 2000)
       break; // in benchmark mode, exit after 2000 frames
 
-    drawnTriangleCount = 0;
     if (!benchmarkMode) {
       int sleep = 24 - (startRenderStep - lastStartRenderStep);
       SDL_Delay((sleep > 0 ? sleep : 1));
@@ -172,10 +171,7 @@ int main(int argc, char *argv[]) {
     for (Triangle &tr : vectTriangle) {
       // if backface Culling is activated, test the angle of the normal of the
       // triangle to check if it is facing the camera
-      if (backfaceC || tr.isFacingCamera()) {
-        drawnTriangleCount++;
-        rasterizer.drawTriangle(tr, lightSource, isWireframe);
-      }
+      rasterizer.drawTriangle(tr, lightSource, isWireframe, backfaceC);
     }
     chrRaster.addTimeSince(chrSort.lastEndTime());
 
