@@ -30,7 +30,7 @@
 
 class SDLWrapper {
 public:
-  SDLWrapper(size_t width, size_t height);
+  SDLWrapper(int width, int height);
 
   unsigned int static getTicks() { return SDL_GetTicks(); }
 

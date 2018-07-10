@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 
-SDLWrapper::SDLWrapper(size_t width, size_t height) {
+SDLWrapper::SDLWrapper(int width, int height) {
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
     throw std::runtime_error(SDL_GetError());
