@@ -25,8 +25,6 @@
 #include <SDL2/SDL.h>
 #include <memory>
 
-using unique_ptr_surface = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
-
 /*
    This class is a Wrapper for the SDL_Surface pointer returned by a call to 
    SDL_GetWindowSurface. It do not own the pointer to the SDL_Surface.
