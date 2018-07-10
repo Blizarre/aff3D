@@ -35,10 +35,7 @@ struct Point {
 };
 
 /*
-        This class will draw triangles on a Surface. Since I didn't wanted to
-   use [smart-]pointers
-        as a challenge, the Rasterizer holds a "weak" reference to the
-   SurfaceWrapper.
+   This class will draw triangles on a Surface.
 */
 class Rasterizer {
 public:
@@ -47,17 +44,19 @@ public:
   Rasterizer(SurfaceWrapper &surface) : m_surface(surface) {}
 
   // Project the vertex in the screen space. the view is centered around 0 in x
-  // and y thanks to the +0.5.
-  inline void projectToScreen(const Vertex &i, Point &pt) {
+  // and y thanks to the +0.5. The division by z enable perspective.
+  void projectToScreen(const Vertex &i, Point &pt) {
     pt.x = (int)((i.x/i.z + 0.5) * m_surface.getWidth());
     pt.y = (int)((i.y/i.z + 0.5) * m_surface.getHeight());
   }
 
 
-  // Draw a line on the Surface. x1 and x2 can be both outside the screen range
-  void drawLine(int x1, int x2, int y, Uint32 color, bool isWireFrame);
-  void drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color,
-                            bool isWireFrame);
+  /*
+  * Draw the horizontal line between the two points start and end at height y. Make a
+  * boundary check: draw only the visible part of the line, check start, end and y
+  * preconditions: start <= end
+  */
+  void drawLine(int start, int end, int y, Uint32 color, bool isWireFrame);
 
   // Draw a triangle on the screen
   void drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame);

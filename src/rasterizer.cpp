@@ -27,13 +27,7 @@ void sortInPlace(Point pt[]) {
   }
 }
 
-/*
- * Draw the horizontal line between the two points start and end at height y. Make a
- *
- * boundary check: draw only the visible part of the line, check start, end and y
- * preconditions: start <= end
-*/
-inline void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
+void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
                                  bool isWireFrame) {
   assert(start <= end);
   if (isInRangeY(y) && isLineInRangeX(start, end)) {
