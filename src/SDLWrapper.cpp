@@ -3,9 +3,6 @@
 #include <iostream>
 #include <stdexcept>
 
-/*
-* Initialiser SDL : renvoie la surface principale
-**/
 SDLWrapper::SDLWrapper(size_t width, size_t height) {
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -22,23 +19,28 @@ SDLWrapper::SDLWrapper(size_t width, size_t height) {
   if (!window) {
     throw std::runtime_error(SDL_GetError());
   }
+
+  // A surface returned by SDL_GetWindowSurface must not be freed
   surface = SDL_GetWindowSurface(window);
+  if (!surface) {
+    throw std::runtime_error(SDL_GetError());
+  }
+
   renderer = SDL_CreateSoftwareRenderer(surface);
   if (!renderer) {
     throw std::runtime_error(SDL_GetError());
   }
+  std::clog << "Video mode OK" << std::endl;
 
-  m_screen.setInnerPointer(surface);
-
-  if (m_screen.getInnerPointer() == nullptr) {
-    throw std::runtime_error(SDL_GetError());
-  } else {
-    std::clog << "Video mode OK" << std::endl;
-  }
-
-  std::atexit(SDL_Quit);
+  m_screen.reset(new SurfaceWrapper(surface));
 
   std::clog << "SDL initialization OK" << std::endl;
+}
+
+SDLWrapper::~SDLWrapper() {
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
 }
 
 void SDLWrapper::processEvents() {
