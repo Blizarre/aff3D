@@ -42,13 +42,7 @@ void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
   }
 }
 
-/**
- * Clamp start and end so that they fit inside [0, m_surface.getWidth()[
- * preconditions:
- *  - start <= end
- *  - the line [start, end] has at least one pixel inside [0,
- *m_surface.getWidth()[
- **/
+
 void Rasterizer::trimXValues(int &start, int &end) {
   assert(start <= end);
   assert(!(start >= m_surface.getWidth() && end >= m_surface.getWidth()));

@@ -66,10 +66,14 @@ public:
 protected:
   SurfaceWrapper &m_surface;
 
-  // trimXValues will make sure that va1 and val2 are in the screen space.
-  // Warning,
-  // val1 < val2 must be true
-  void trimXValues(int &val1, int &val2);
+  /**
+   * Clamp start and end so that they fit inside [0, m_surface.getWidth()[
+   * preconditions:
+   *  - start <= end
+   *  - the line [start, end] has at least one pixel inside [0,
+   *m_surface.getWidth()[
+   **/
+  void trimXValues(int &start, int &end);
 
   bool isInRangeY(int y) { return y >= 0 && y < m_surface.getHeight(); }
   bool isInRangeX(int x) { return x >= 0 && x < m_surface.getWidth(); }
