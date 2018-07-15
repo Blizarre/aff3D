@@ -1,16 +1,14 @@
 #include "rasterizer.h"
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 // TODO: Create line Object
 
 // sort 2 numbers
-template <typename T>
-inline void sort2(T &a, T &b) {
+template <typename T> inline void sort2(T &a, T &b) {
   if (a > b)
     std::swap(a, b);
 }
-
 
 // Sort three points along their y component
 void sortInPlace(Point pt[]) {
@@ -28,7 +26,7 @@ void sortInPlace(Point pt[]) {
 }
 
 void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
-                                 bool isWireFrame) {
+                          bool isWireFrame) {
   assert(start <= end);
   if (isInRangeY(y) && isLineInRangeX(start, end)) {
     // TODO: drawWireframe should be a separate function
@@ -48,12 +46,13 @@ void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
  * Clamp start and end so that they fit inside [0, m_surface.getWidth()[
  * preconditions:
  *  - start <= end
- *  - the line [start, end] has at least one pixel inside [0, m_surface.getWidth()[
+ *  - the line [start, end] has at least one pixel inside [0,
+ *m_surface.getWidth()[
  **/
 void Rasterizer::trimXValues(int &start, int &end) {
   assert(start <= end);
-  assert(! (start >= m_surface.getWidth() && end >= m_surface.getWidth()));
-  assert(! (start < 0 && end < 0));
+  assert(!(start >= m_surface.getWidth() && end >= m_surface.getWidth()));
+  assert(!(start < 0 && end < 0));
 
   if (start < 0) {
     start = 0;
@@ -74,23 +73,26 @@ void Rasterizer::trimXValues(int &start, int &end) {
 * - the bottom part of the triangle is drawn
 * TODO: This code should be refactored. For now it is used as a blackbox
 **/
-void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame, bool backFaceCulling) {
+void Rasterizer::drawTriangle(const Triangle &t, Normal &lightSource,
+                              bool isWireFrame, bool backFaceCulling) {
   // We must compute lightning _before_ doing perspective correction
   float lightCoeff = lightSource.dot(t.normal);
 
   lightCoeff = (lightCoeff > 0 ? lightCoeff : 0);
 
   Uint32 color = m_surface.getColor(static_cast<Uint8>(t.r * lightCoeff),
-    static_cast<Uint8>(t.g * lightCoeff),
-    static_cast<Uint8>(t.b * lightCoeff));
+                                    static_cast<Uint8>(t.g * lightCoeff),
+                                    static_cast<Uint8>(t.b * lightCoeff));
 
   // Perspective correction
   // TODO: refactor to push outside
   std::array<Vertex, 3> pointsAfterPerspectiveCorrection;
 
-  std::transform(std::begin(t.points), std::end(t.points), std::begin(pointsAfterPerspectiveCorrection), [](const Vertex& v) {
-    return Vertex{ v.x / v.z, v.y / v.z, v.z};
-  });
+  std::transform(std::begin(t.points), std::end(t.points),
+                 std::begin(pointsAfterPerspectiveCorrection),
+                 [](const Vertex &v) {
+                   return Vertex{v.x / v.z, v.y / v.z, v.z};
+                 });
 
   if (backFaceCulling && !t.isFacingCamera()) {
     return;
@@ -103,8 +105,8 @@ void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWir
 
   for (int v = 0; v < 3; v++) {
     projectToScreen(t.points[v], tP[v]);
-    if (tP[v].isInRange(1, m_surface.getWidth() - 1, 0, m_surface.getHeight()))
-    {
+    if (tP[v].isInRange(1, m_surface.getWidth() - 1, 0,
+                        m_surface.getHeight())) {
       isNotDrawn = false;
     }
   }
@@ -124,7 +126,7 @@ void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWir
     x1 = tP[0].x;
     x2 = tP[2].x;
     sort2(x1, x2);
-    drawLine(x1 -1, x2, tP[0].y, color, isWireFrame);
+    drawLine(x1 - 1, x2, tP[0].y, color, isWireFrame);
   } else {
     a1 = (tP[0].x - tP[2].x) / ((float)tP[0].y - tP[2].y);
     a2 = (tP[1].x - tP[2].x) / ((float)tP[1].y - tP[2].y);
@@ -133,7 +135,8 @@ void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWir
       x2 = (int)(-a2 * yP) + tP[2].x;
       sort2(x1, x2);
       // TODO: implement proper triangle join
-      // all lines are widened by 1 px on the left to make sure all trangles are joined
+      // all lines are widened by 1 px on the left to make sure all trangles are
+      // joined
       drawLine(x1 - 1, x2, y, color, isWireFrame);
 
       yP++;
@@ -146,7 +149,7 @@ void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWir
     x1 = tP[0].x;
     x2 = tP[1].x;
     sort2(x1, x2);
-    drawLine(x1 -1, x2, tP[0].y, color, isWireFrame);
+    drawLine(x1 - 1, x2, tP[0].y, color, isWireFrame);
   } else {
     a1 = (tP[1].x - tP[0].x) / ((float)tP[1].y - tP[0].y);
     a2 = (tP[2].x - tP[0].x) / ((float)tP[2].y - tP[0].y);
@@ -155,7 +158,8 @@ void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWir
       x1 = (int)(a1 * yP) + tP[0].x;
       x2 = (int)(a2 * yP) + tP[0].x;
       // TODO: implement proper system
-      // all lines are widened by 1 px on the lst to make sure all trangles are joined
+      // all lines are widened by 1 px on the lst to make sure all trangles are
+      // joined
       sort2(x1, x2);
       drawLine(x1 - 1, x2, y, color, isWireFrame);
 

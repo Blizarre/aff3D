@@ -30,13 +30,13 @@
 
 #include "IO/fileParser.h"
 #include "IO/triangleNormaliser.h"
-#include "transfo.h"
-#include "triangle.h"
-#include "vertex.h"
 #include "chronometer.hpp"
 #include "normal.h"
 #include "stdlib.h"
+#include "transfo.h"
+#include "triangle.h"
 #include "utils.h"
+#include "vertex.h"
 
 using namespace std;
 
@@ -50,7 +50,6 @@ vector<Triangle> readFromFile(const string &fileName) {
   TriangleNormalizer normalizer(triangles.cbegin(), triangles.cend());
   return normalizer.normalize(triangles.cbegin(), triangles.cend());
 }
-
 
 bool compareTriangleZ(const Triangle &d1, const Triangle &d2) {
   return d1.sumOfDistances() < d2.sumOfDistances();
@@ -94,11 +93,11 @@ int main(int argc, char *argv[]) {
   initTime = sdl.getTicks();
 
   Chronometer<unsigned int> chrWait{"Wait before drawing", sdl.getTicks},
-    chrFillScreen{"Fill Screen", sdl.getTicks},
-    chrTransform{"Transform triangles", sdl.getTicks},
-    chrSort{"Sort triangles", sdl.getTicks},
-    chrRaster{"Raster triangles", sdl.getTicks},
-    chrPresentImage{"Present image", sdl.getTicks};
+      chrFillScreen{"Fill Screen", sdl.getTicks},
+      chrTransform{"Transform triangles", sdl.getTicks},
+      chrSort{"Sort triangles", sdl.getTicks},
+      chrRaster{"Raster triangles", sdl.getTicks},
+      chrPresentImage{"Present image", sdl.getTicks};
 
   // this array of 100 pseudo-random values is used to speed up computations
   // when the quality of the randomness
@@ -120,7 +119,7 @@ int main(int argc, char *argv[]) {
   sdl.onKeyPress(SDLK_b, [&backfaceC]() { backfaceC = !backfaceC; });
   sdl.onKeyPress(SDLK_q, [&autoAnimate]() { autoAnimate = !autoAnimate; });
 
-  Normal lightSource = Normal{ 0, 0, 1 };
+  Normal lightSource = Normal{0, 0, 1};
   lightSource.normInPlace();
 
   Uint32 lastStartRenderStep = 0;
@@ -139,16 +138,15 @@ int main(int argc, char *argv[]) {
 
     chrWait.addTimeSince(startRenderStep);
 
-
     screen.fill(50, 50, 50);
     chrFillScreen.addTimeSince(chrWait.lastEndTime());
 
     transfo = Transformation();
 
-    transfo.translate({ 0, 0, 2 });
+    transfo.translate({0, 0, 2});
 
     if (autoAnimate) {
-      transfo.rotationX(startRenderStep/ 6000.0f);
+      transfo.rotationX(startRenderStep / 6000.0f);
       transfo.rotationZ(startRenderStep / 50000.0f);
     } else {
       transfo.rotationX(rotX);
@@ -192,7 +190,8 @@ int main(int argc, char *argv[]) {
   cout << frameCount << " frames in " << (sdl.getTicks() - initTime)
        << " ms., mean fps : "
        << int(frameCount / ((sdl.getTicks() - initTime) / 1000.0)) << endl
-       << chrWait << chrFillScreen << chrTransform << chrSort << chrRaster << chrPresentImage;
+       << chrWait << chrFillScreen << chrTransform << chrSort << chrRaster
+       << chrPresentImage;
 
   return 0;
 }

@@ -10,7 +10,7 @@ void Transformation::translate(const float delta[3]) {
       m_matrix[8] * delta[0] + m_matrix[9] * delta[1] + m_matrix[10] * delta[2];
 }
 
-void Transformation::translate(const std::array<float, 3>& delta) {
+void Transformation::translate(const std::array<float, 3> &delta) {
   translate(delta.data());
 }
 
@@ -105,12 +105,12 @@ Vertex Transformation::applyTo(const Vertex &v) const {
 
 // For normals we must ignore w
 Normal Transformation::applyTo(const Normal &n) const {
-    float nx, ny, nz;
+  float nx, ny, nz;
 
-    nx = n.x * m_matrix[0] + n.y * m_matrix[1] + n.z * m_matrix[2];
-    ny = n.x * m_matrix[4] + n.y * m_matrix[5] + n.z * m_matrix[6];
-    nz = n.x * m_matrix[8] + n.y * m_matrix[9] + n.z * m_matrix[10];
-    return Normal{ nx, ny, nz };
+  nx = n.x * m_matrix[0] + n.y * m_matrix[1] + n.z * m_matrix[2];
+  ny = n.x * m_matrix[4] + n.y * m_matrix[5] + n.z * m_matrix[6];
+  nz = n.x * m_matrix[8] + n.y * m_matrix[9] + n.z * m_matrix[10];
+  return Normal{nx, ny, nz};
 }
 
 void Transformation::applyTo(const Vertex &vIn, Vertex &vOut) const {

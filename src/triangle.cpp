@@ -17,4 +17,3 @@ void Triangle::applyTransformation(const Transformation &tr) {
   tr.applyTo(origPoints, points);
   normal = tr.applyTo(origNormal);
 }
-

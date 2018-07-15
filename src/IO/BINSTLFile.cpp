@@ -1,8 +1,8 @@
 #include "BINSTLFile.h"
 
+#include "normal.h"
 #include <iostream>
 #include <string>
-#include "normal.h"
 
 template <typename T> T read(std::istream &is) {
   // TODO: Handle little/big endian. This code assume same endianness
@@ -11,7 +11,7 @@ template <typename T> T read(std::istream &is) {
   is.read(reinterpret_cast<char *>(&token), size);
   if (is.eof()) {
     throw ParseError(std::string("End of File reached @") +
-                         std::to_string(is.tellg()));
+                     std::to_string(is.tellg()));
   } else if (is.fail()) {
     throw ParseError("Error reading the file");
   }
@@ -56,6 +56,6 @@ void BINSTLFile::parse(std::istream &dataFile) {
     Vertex b = readVertex(dataFile);
     Vertex c = readVertex(dataFile);
     readu16(dataFile);
-    _triangles.push_back(Triangle{ a, b, c, norm, 0, 0, 255 });
+    _triangles.push_back(Triangle{a, b, c, norm, 0, 0, 255});
   }
 }

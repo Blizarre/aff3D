@@ -26,12 +26,12 @@
 #include <memory>
 
 /*
-   This class is a Wrapper for the SDL_Surface pointer returned by a call to 
+   This class is a Wrapper for the SDL_Surface pointer returned by a call to
    SDL_GetWindowSurface. It do not own the pointer to the SDL_Surface.
 */
 class SurfaceWrapper {
 public:
-  SurfaceWrapper(SDL_Surface* surface): m_SDLSurface(surface) { }
+  SurfaceWrapper(SDL_Surface *surface) : m_SDLSurface(surface) {}
 
   inline int getWidth() { return m_SDLSurface->w; }
   inline int getHeight() { return m_SDLSurface->h; }
@@ -63,7 +63,7 @@ public:
   inline SDL_Surface *getInnerPointer() const { return m_SDLSurface; }
 
 protected:
-  SDL_Surface* m_SDLSurface;
+  SDL_Surface *m_SDLSurface;
 };
 
 #endif

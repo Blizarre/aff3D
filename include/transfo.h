@@ -4,8 +4,8 @@
 #include <array>
 #include <vector>
 
-#include "vertex.h"
 #include "normal.h"
+#include "vertex.h"
 
 class Transformation {
 
@@ -22,7 +22,7 @@ public:
   }
 
   void translate(const float delta[3]);
-  void translate(const std::array<float, 3>& delta);
+  void translate(const std::array<float, 3> &delta);
 
   void rotationX(const float rot);
   void rotationY(const float rot);
@@ -37,7 +37,7 @@ public:
   ***/
   template <typename Type, size_t N>
   void applyTo(const std::array<Type, N> &originalArray,
-    std::array<Type, N> &newArray) const {
+               std::array<Type, N> &newArray) const {
     auto itOrig = originalArray.cbegin();
     auto itNew = newArray.begin();
 

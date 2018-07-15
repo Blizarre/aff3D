@@ -36,7 +36,7 @@ public:
 
   void flipBuffer() { SDL_UpdateWindowSurface(window); }
 
-  SurfaceWrapper& getMainScreen() { return *m_screen; }
+  SurfaceWrapper &getMainScreen() { return *m_screen; }
 
   /***
    * bind a key number to a std::function. When processEvent will be called,

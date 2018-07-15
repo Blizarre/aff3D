@@ -21,9 +21,9 @@
 #pragma once
 
 #include "SDLWrapper.h"
+#include "normal.h"
 #include "triangle.h"
 #include "vertex.h"
-#include "normal.h"
 
 // It is the projection of a Vertex. in the screen space.
 struct Point {
@@ -50,16 +50,18 @@ public:
     pt.y = (int)((i.y + 0.5) * m_surface.getHeight());
   }
 
-
   /*
-  * Draw the horizontal line between the two points start and end at height y. Make a
-  * boundary check: draw only the visible part of the line, check start, end and y
+  * Draw the horizontal line between the two points start and end at height y.
+  * Make a
+  * boundary check: draw only the visible part of the line, check start, end and
+  * y
   * preconditions: start <= end
   */
   void drawLine(int start, int end, int y, Uint32 color, bool isWireFrame);
 
   // Draw a triangle on the screen
-  void drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame, bool backFaceCulling);
+  void drawTriangle(const Triangle &t, Normal &lightSource, bool isWireFrame,
+                    bool backFaceCulling);
 
 protected:
   SurfaceWrapper &m_surface;
@@ -71,5 +73,7 @@ protected:
 
   bool isInRangeY(int y) { return y >= 0 && y < m_surface.getHeight(); }
   bool isInRangeX(int x) { return x >= 0 && x < m_surface.getWidth(); }
-  bool isLineInRangeX(int start, int end) { return start < m_surface.getWidth() && end > 0; }
+  bool isLineInRangeX(int start, int end) {
+    return start < m_surface.getWidth() && end > 0;
+  }
 };

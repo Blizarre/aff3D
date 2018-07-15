@@ -22,15 +22,15 @@
 
 #define __TRIANGLE_H_443354423
 
+#include "normal.h"
 #include "transfo.h"
 #include "vertex.h"
 #include <array>
-#include "normal.h"
 
 typedef unsigned char u8;
 
-//TODO: refactor this Triangle class to not expose the points directly
-//and have a clear difference between points and normal
+// TODO: refactor this Triangle class to not expose the points directly
+// and have a clear difference between points and normal
 
 class Triangle {
 public:
@@ -61,7 +61,7 @@ public:
     origPoints[0] = a;
     origPoints[1] = b;
     origPoints[2] = c;
-    origNormal = Normal{ a, b, c };
+    origNormal = Normal{a, b, c};
     origNormal.normInPlace();
 
     points = origPoints; // copy the rawData to initialize points

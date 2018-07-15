@@ -1,10 +1,10 @@
-#include <gtest/gtest.h>
-#include "sstream"
-#include "string"
-#include <istream>
 #include "IO/ASCIISTLFile.h"
 #include "fileParser.h"
+#include "sstream"
+#include "string"
+#include <gtest/gtest.h>
 #include <iostream>
+#include <istream>
 
 namespace tests {
 
@@ -19,12 +19,10 @@ std::string validSTL1 = R"n0(solid test0
 endsolid 
 )n0";
 
-  std::string validSTL1_description{"test0"};
+std::string validSTL1_description{"test0"};
 
-std::array<Vertex, 3> validSTL1_vertexes {
-  Vertex{1, 2, 3},
-  Vertex{11, 12, 13},
-  Vertex{21, 22, 23},
+std::array<Vertex, 3> validSTL1_vertexes{
+    Vertex{1, 2, 3}, Vertex{11, 12, 13}, Vertex{21, 22, 23},
 };
 
 std::string notSTL = R"n0(not a
@@ -59,5 +57,4 @@ TEST(ASCIISTLFile, failInvalidFileContent) {
   std::istringstream invalidSTLStream{invalidSTL1};
   ASSERT_THROW(ASCIISTLFile{invalidSTLStream}, ParseError);
 }
-
 }
