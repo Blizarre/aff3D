@@ -1,6 +1,6 @@
 #include "rasterizer.h"
 #include <cassert>
-
+#include <algorithm>
 
 // TODO: Create line Object
 
@@ -27,13 +27,7 @@ void sortInPlace(Point pt[]) {
   }
 }
 
-/*
- * Draw the horizontal line between the two points start and end at height y. Make a
- *
- * boundary check: draw only the visible part of the line, check start, end and y
- * preconditions: start <= end
-*/
-inline void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
+void Rasterizer::drawLine(int start, int end, int y, Uint32 color,
                                  bool isWireFrame) {
   assert(start <= end);
   if (isInRangeY(y) && isLineInRangeX(start, end)) {
@@ -71,22 +65,38 @@ void Rasterizer::trimXValues(int &start, int &end) {
 
 /**
 * A triangle is draw in several steps:
-* - first, the Vertex are projected on the screen space.
-* - then, they are ordered by height.
+* - lightning is computed
+* - perspective correction is applied
+* - backface culling is applied if necessary
+* - Vertex are projected on the screen space.
+* - they are ordered by height.
 * - the first half of the triangle is drawn (top point to the middle point)
-* - and finally the bottom part of the triangle is drawn
+* - the bottom part of the triangle is drawn
 * TODO: This code should be refactored. For now it is used as a blackbox
 **/
-void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame) {
-  // TODO: code reuse between the two halves
+void Rasterizer::drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame, bool backFaceCulling) {
+  // We must compute lightning _before_ doing perspective correction
   float lightCoeff = lightSource.dot(t.normal);
 
   lightCoeff = (lightCoeff > 0 ? lightCoeff : 0);
 
   Uint32 color = m_surface.getColor(static_cast<Uint8>(t.r * lightCoeff),
-                                    static_cast<Uint8>(t.g * lightCoeff),
-                                    static_cast<Uint8>(t.b * lightCoeff));
+    static_cast<Uint8>(t.g * lightCoeff),
+    static_cast<Uint8>(t.b * lightCoeff));
 
+  // Perspective correction
+  // TODO: refactor to push outside
+  std::array<Vertex, 3> pointsAfterPerspectiveCorrection;
+
+  std::transform(std::begin(t.points), std::end(t.points), std::begin(pointsAfterPerspectiveCorrection), [](const Vertex& v) {
+    return Vertex{ v.x / v.z, v.y / v.z, v.z};
+  });
+
+  if (backFaceCulling && !t.isFacingCamera()) {
+    return;
+  }
+
+  // TODO: code reuse between the two halves
   Point tP[3];
 
   bool isNotDrawn = true;

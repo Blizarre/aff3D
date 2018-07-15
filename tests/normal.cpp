@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "vertex.h"
-#include "normal.hpp"
+#include "normal.h"
 
 namespace tests {
 

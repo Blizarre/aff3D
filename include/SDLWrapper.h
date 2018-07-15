@@ -30,13 +30,13 @@
 
 class SDLWrapper {
 public:
-  SDLWrapper(size_t width, size_t height);
+  SDLWrapper(int width, int height);
 
   unsigned int static getTicks() { return SDL_GetTicks(); }
 
   void flipBuffer() { SDL_UpdateWindowSurface(window); }
 
-  SurfaceWrapper &getMainScreen() { return m_screen; }
+  SurfaceWrapper& getMainScreen() { return *m_screen; }
 
   /***
    * bind a key number to a std::function. When processEvent will be called,
@@ -56,12 +56,14 @@ public:
 
   void processEvents();
 
+  ~SDLWrapper();
+
 protected:
   std::map<Uint32, std::function<void(void)>> m_keyboardEventBindings;
   std::function<void(void)> m_quitEvent;
   std::function<void(size_t, size_t)> m_onMouseMove;
 
-  SurfaceWrapper m_screen;
+  std::unique_ptr<SurfaceWrapper> m_screen;
   SDL_Renderer *renderer;
   SDL_Window *window;
 };

@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "vertex.h"
-#include "normal.hpp"
+#include "normal.h"
 
 class Transformation {
 

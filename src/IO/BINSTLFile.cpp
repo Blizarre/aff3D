@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <string>
-#include "normal.hpp"
+#include "normal.h"
 
 template <typename T> T read(std::istream &is) {
   // TODO: Handle little/big endian. This code assume same endianness

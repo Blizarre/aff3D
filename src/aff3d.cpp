@@ -34,7 +34,7 @@
 #include "triangle.h"
 #include "vertex.h"
 #include "chronometer.hpp"
-#include "normal.hpp"
+#include "normal.h"
 #include "stdlib.h"
 #include "utils.h"
 
@@ -51,18 +51,6 @@ vector<Triangle> readFromFile(const string &fileName) {
   return normalizer.normalize(triangles.cbegin(), triangles.cend());
 }
 
-void scrambleImage(SurfaceWrapper &surface,
-                   std::array<signed char, 100> tabRandom) {
-  Uint32 x, y;
-  SurfaceWrapper temporary =
-      surface;
-
-  for (x = 10; x < screenWidth - 10; x++)
-    for (y = 10; y < screenHeight - 10; y++) {
-      surface.pixel(x, y) = temporary.pixel(x + tabRandom[x * y % 100],
-                                            y + tabRandom[x * y % 100]);
-    }
-}
 
 bool compareTriangleZ(const Triangle &d1, const Triangle &d2) {
   return d1.sumOfDistances() < d2.sumOfDistances();
@@ -77,12 +65,12 @@ int main(int argc, char *argv[]) {
 
   bool shouldQuit = false;
   unsigned int initTime = 0;
-  bool scramble = false, isWireframe = false, backfaceC = false;
+  bool isWireframe = false, backfaceC = false;
 
   bool autoAnimate = false;
   bool benchmarkMode = false;
 
-  int drawnTriangleCount = 0, frameCount = 0;
+  int frameCount = 0;
   if (argc < 2) {
     cout << "Usage : " << argv[0] << " <stl file> [/benchmark]" << endl;
     return EXIT_FAILURE;
@@ -128,7 +116,6 @@ int main(int argc, char *argv[]) {
   });
   sdl.onQuitEvent([&shouldQuit]() { shouldQuit = true; });
   sdl.onKeyPress(SDLK_ESCAPE, [&shouldQuit]() { shouldQuit = !shouldQuit; });
-  sdl.onKeyPress(SDLK_f, [&scramble]() { scramble = !scramble; });
   sdl.onKeyPress(SDLK_w, [&isWireframe]() { isWireframe = !isWireframe; });
   sdl.onKeyPress(SDLK_b, [&backfaceC]() { backfaceC = !backfaceC; });
   sdl.onKeyPress(SDLK_q, [&autoAnimate]() { autoAnimate = !autoAnimate; });
@@ -144,7 +131,6 @@ int main(int argc, char *argv[]) {
     if (benchmarkMode && frameCount >= 2000)
       break; // in benchmark mode, exit after 2000 frames
 
-    drawnTriangleCount = 0;
     if (!benchmarkMode) {
       int sleep = 24 - (startRenderStep - lastStartRenderStep);
       SDL_Delay((sleep > 0 ? sleep : 1));
@@ -185,15 +171,9 @@ int main(int argc, char *argv[]) {
     for (Triangle &tr : vectTriangle) {
       // if backface Culling is activated, test the angle of the normal of the
       // triangle to check if it is facing the camera
-      if (backfaceC || tr.isFacingCamera()) {
-        drawnTriangleCount++;
-        rasterizer.drawTriangle(tr, lightSource, isWireframe);
-      }
+      rasterizer.drawTriangle(tr, lightSource, isWireframe, backfaceC);
     }
     chrRaster.addTimeSince(chrSort.lastEndTime());
-
-    if (scramble)
-      scrambleImage(screen, tab);
 
     screen.unLockSurface();
 

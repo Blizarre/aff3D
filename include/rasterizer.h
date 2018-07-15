@@ -23,7 +23,7 @@
 #include "SDLWrapper.h"
 #include "triangle.h"
 #include "vertex.h"
-#include "normal.hpp"
+#include "normal.h"
 
 // It is the projection of a Vertex. in the screen space.
 struct Point {
@@ -40,33 +40,26 @@ struct Point {
 class Rasterizer {
 public:
   // Create a new Rasterizer from the surface. Holds a weak reference to this
-  // surface. Do not let it out of scope !
-  // TODO: use a smarter pointer
+  // surface.
   Rasterizer(SurfaceWrapper &surface) : m_surface(surface) {}
-
-  // we simply "Steal" the reference of the other Rasterizer
-  Rasterizer(const Rasterizer &other) : m_surface(other.m_surface) {}
-
-  Rasterizer &operator=(const Rasterizer &other) {
-    m_surface = other.m_surface;
-    return *this;
-  }
 
   // Project the vertex in the screen space. the view is centered around 0 in x
   // and y thanks to the +0.5.
-  inline void projectToScreen(const Vertex &i, Point &pt) {
-    pt.x = (int)((i.x/i.z + 0.5) * m_surface.getWidth());
-    pt.y = (int)((i.y/i.z + 0.5) * m_surface.getHeight());
+  void projectToScreen(const Vertex &i, Point &pt) {
+    pt.x = (int)((i.x + 0.5) * m_surface.getWidth());
+    pt.y = (int)((i.y + 0.5) * m_surface.getHeight());
   }
 
 
-  // Draw a line on the Surface. x1 and x2 can be both outside the screen range
-  void drawLine(int x1, int x2, int y, Uint32 color, bool isWireFrame);
-  void drawLineNoBoundCheck(int x1, int x2, int y, Uint32 color,
-                            bool isWireFrame);
+  /*
+  * Draw the horizontal line between the two points start and end at height y. Make a
+  * boundary check: draw only the visible part of the line, check start, end and y
+  * preconditions: start <= end
+  */
+  void drawLine(int start, int end, int y, Uint32 color, bool isWireFrame);
 
   // Draw a triangle on the screen
-  void drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame);
+  void drawTriangle(const Triangle &t, Normal& lightSource, bool isWireFrame, bool backFaceCulling);
 
 protected:
   SurfaceWrapper &m_surface;
@@ -79,5 +72,4 @@ protected:
   bool isInRangeY(int y) { return y >= 0 && y < m_surface.getHeight(); }
   bool isInRangeX(int x) { return x >= 0 && x < m_surface.getWidth(); }
   bool isLineInRangeX(int start, int end) { return start < m_surface.getWidth() && end > 0; }
-
 };

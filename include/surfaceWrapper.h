@@ -23,38 +23,18 @@
 #define __SURFACEWRAPPER_H_456124654
 
 #include <SDL2/SDL.h>
+#include <memory>
 
 /*
-   This class is a Wrapper implementing RAII for the SDL_Surface pointer.
-   A copy of the class will make a copy of the Surface.
+   This class is a Wrapper for the SDL_Surface pointer returned by a call to 
+   SDL_GetWindowSurface. It do not own the pointer to the SDL_Surface.
 */
 class SurfaceWrapper {
 public:
-  SurfaceWrapper() { m_SDLSurface = nullptr; }
-
-  SurfaceWrapper(SDL_Surface *const surface) { m_SDLSurface = surface; }
+  SurfaceWrapper(SDL_Surface* surface): m_SDLSurface(surface) { }
 
   inline int getWidth() { return m_SDLSurface->w; }
   inline int getHeight() { return m_SDLSurface->h; }
-
-  // Copy assignements and constructor
-
-  SurfaceWrapper(const SurfaceWrapper &other) {
-    m_SDLSurface = SDL_ConvertSurface(
-        other.m_SDLSurface, other.m_SDLSurface->format, SDL_SWSURFACE);
-  }
-
-  SurfaceWrapper &operator=(const SurfaceWrapper &other);
-
-  // Move assignements and constructor
-
-  SurfaceWrapper(SurfaceWrapper &&other) : m_SDLSurface(other.m_SDLSurface) {
-    other.m_SDLSurface = nullptr;
-  }
-
-  SurfaceWrapper &operator=(SurfaceWrapper &&other);
-
-  // Other functions
 
   inline Uint32 getColor(const Uint8 r, const Uint8 g, const Uint8 b) const {
     return SDL_MapRGB(m_SDLSurface->format, r, g, b);
@@ -82,16 +62,8 @@ public:
 
   inline SDL_Surface *getInnerPointer() const { return m_SDLSurface; }
 
-  /***
-  * Change the pointer of the SDL_Surface. Will release the previous pointer if
-  *set.
-  ***/
-  void setInnerPointer(SDL_Surface *newSurface);
-
-  virtual ~SurfaceWrapper();
-
 protected:
-  SDL_Surface *m_SDLSurface;
+  SDL_Surface* m_SDLSurface;
 };
 
 #endif
