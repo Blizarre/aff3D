@@ -21,7 +21,7 @@ private:
 
   void parse(std::istream &dataFile);
 
-  void expectKeyword(std::string expected, std::string read) {
+  void expectKeyword(const std::string expected, const std::string read) {
     if (expected != read) {
       throw std::runtime_error("STL: Expect keyword '" + expected + "', got " +
                                read);

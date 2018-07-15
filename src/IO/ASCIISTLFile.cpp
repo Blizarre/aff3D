@@ -48,7 +48,9 @@ void ASCIISTLFile::parse(std::istream &dataFile) {
       if (word != "solid") {
         throw InvalidFileType("Does not start with the keyword 'solid'");
       }
-      dataFile >> _description;
+      // left trimming the description as it will contain spacing character
+      std::getline(dataFile, _description);
+      _description.erase(0, _description.find_first_not_of(" "));
       state = State::FACET;
       break;
     case State::FACET:
