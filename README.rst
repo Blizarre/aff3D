@@ -11,17 +11,20 @@ I am currently using SDL2 to get the keyboard/mouse inputs as well as a framebuf
 
 It is in a very early stage of development, as I'm trying to evaluate what are the technologies that I can realistically implement in software using "naïve" implementation at first.
 
-usage: aff3d <model.stl> 
-(look in the data subdirectory)
+::
 
-'w' : wireframe / solid
-'b' : enable/disable backface culling
-'q' : use the mouse to move the model
+  usage: aff3d <model.stl> 
+  
+  'w' : wireframe / solid
+  'b' : enable/disable backface culling
+  'q' : use the mouse to move the model
 
-Implemented :
-* Flat shading
-* Backface culling
-* painter's algorithm
+Implemented:
 
-Soon :
-* z-buffer
+- Flat shading
+- Backface culling
+- painter's algorithm
+
+Soon:
+
+- z-buffer
