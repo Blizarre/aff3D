@@ -1,7 +1,9 @@
 .. image:: https://travis-ci.org/Blizarre/aff3D.svg?branch=master
     :target: https://travis-ci.org/Blizarre/aff3D
 
-*DISCLAIMER*: This is a very old project that I am in the process of cleaning up. The current goal is to keep the functionalities but to migrate the code to "modern" c++.
+*DISCLAIMER*: This is a very old project that I have cleaned up a bit in order to migrate it to a more modern C++. This work was not finished as I have focused my developments more on `rust` recently, but one day I might come back to it.
+
+BLog post: https://www.marache.net/post/update-cpp.html
 
 =======
 
