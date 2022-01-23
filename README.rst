@@ -3,7 +3,9 @@
 
 *DISCLAIMER*: This is a very old project that I have cleaned up a bit in order to migrate it to a more modern C++. This work was not finished as I have focused my developments more on `rust` recently, but one day I might come back to it.
 
-BLog post: https://www.marache.net/post/update-cpp.html
+It was quite fun to write and managed to run very well on my old laptop, despite the fact that it is purely a software implementation.
+
+Blog post: https://www.marache.net/post/update-cpp.html
 
 =======
 
